@@ -10,6 +10,7 @@
     "react-native-blur": "^0.5.2",
     "react-native-htmlview": "^0.2.0",
     "react-native-modal": "^0.3.7",
+    "react-native-navbar": "^0.5.1",
     "react-native-parallax-view": "git://github.com/alvaromb/react-native-parallax-view",
     "react-native-vector-icons": "^0.6.1",
     "react-timer-mixin": "^0.13.1"

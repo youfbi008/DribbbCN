@@ -13,7 +13,7 @@ var {
 var api = require('./helpers/api');
 
 var ShotCell = require('./ShotCell');
-var ShotTwoCellRow = require('./ShotTwoCellRow');
+var ShotTwoCellRow = require('./ShotCell');
 var ShotDetails = require('./ShotDetails');
 
 
@@ -235,6 +235,7 @@ var Loading = React.createClass({
 
 var styles = StyleSheet.create({
   container: {
+    marginTop: 60,
     flex: 1,
     backgroundColor: 'white',
   },
