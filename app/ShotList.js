@@ -1,6 +1,8 @@
 'use strict';
 
 var React = require('react-native');
+var NavigationBar = require('react-native-navbar');
+var Modal = require('react-native-modal');
 var {
   ActivityIndicatorIOS,
   ListView,
@@ -8,6 +10,7 @@ var {
   Text,
   TextInput,
   View,
+  TouchableOpacity
 } = React;
 
 var api = require('./helpers/api');
@@ -15,7 +18,8 @@ var api = require('./helpers/api');
 var ShotCell = require('./ShotCell');
 var ShotTwoCellRow = require('./ShotTwoCellRow');
 var ShotDetails = require('./ShotDetails');
-
+var Icon = require('FontAwesome'),
+    screen = require('Dimensions').get('window');
 
 // Results should be cached keyed by the query
 // with values of null meaning "being fetched"
@@ -46,9 +50,84 @@ var ShotList = React.createClass({
       }),
       filter: this.props.filter,
       queryNumber: 0,
+      isModalOpen: false,
+      modalItemList: [
+        {id: 1, name: 'popular', title: 'Popular', icon: 'heart-o', iv_icon: 'heart'},
+        {id: 2, name: 'debuts', title: 'Debuts', icon: 'heart-o', iv_icon: 'heart'},
+        {id: 3, name: 'teams', title: 'Teams', icon: 'heart-o', iv_icon: 'heart'},
+      ]
     };
   },
+  openModal: function() {
+    this.setState({
+      isModalOpen: true
+    });
+  },
 
+  closeModal: function() {
+    this.setState({
+      isModalOpen: false
+    });
+  },
+
+  checkModalIconEvent: function(category: string) {
+    if(this.state.selectedCategory == category) {
+      return false;
+    } else {
+      return true;
+    }
+  },
+
+  handleModalOpen: function() {
+    this.setState({
+      isModalOpen: !this.state.isModalOpen,
+    });
+  },
+   _renderModalRow: function() {
+
+    var modal_row = this.state.modalItemList.map((item) => {
+      var category_name = item.name;
+      var isValid = this.checkModalIconEvent(category_name);
+      var icon = isValid ? item.icon : item.iv_icon ;
+      // var navigator = this.refs.nav;
+    
+      return <TouchableOpacity 
+                  style={styles.modalIcon}
+                  onPress={() => {
+                  
+                    if(!isValid) {
+                      return;
+                    }
+                    var old_category = this.state.selectedCategory;
+                    this.setState({
+                        selectedCategory: category_name,
+                      });
+                    {/*TODOnavigatorIOS的 replace功能不起作用，但navigator又会导致子页面不正常*/} 
+                    this.props.navigator.push({
+                      component: ShotList,
+                      passProps: {filter: category_name},
+                      title: category_name,
+                      backButtonTitle: 'aa',
+                      rightButtonIcon: require('image!bars'),
+                      onRightButtonPress: () => {
+
+                        this.setState({
+                          isModalOpen: !this.state.isModalOpen,
+                        });
+                      }
+                    });
+                    this.closeModal();
+                  }}>
+                <View style={styles.modalIcon}>
+                  <Icon name={icon} size={24} color="#333"/>
+                  <Text style={styles.modalIconText}>{category_name}</Text>
+                </View>
+            </TouchableOpacity>
+    });
+    return (
+      {modal_row}
+    );
+  },
   componentWillMount: function() {
     this.getShots(this.state.filter);
   },
@@ -170,7 +249,13 @@ var ShotList = React.createClass({
     this.props.navigator.push({
       component: ShotDetails,
       passProps: {shot},
-      title: shot.title
+      navigationBar: <NavigationBar 
+        title={shot.title}
+        onPrev={() => {
+          console.log(111);
+          this.props.navigator.pop();
+        }}
+        />
     });
   },
 
@@ -213,11 +298,66 @@ var ShotList = React.createClass({
 
     return (
       <View style={styles.container}>
+           <View style={styles.closeButton}>
+              <TouchableOpacity 
+                onPress={this.openModal}>
+                <Text style={styles.closeButtonText}>菜单</Text>
+              </TouchableOpacity>
+            </View>
         <View style={styles.separator} />
+       
         {content}
+        <Modal isVisible={this.state.isModalOpen}
+                 onClose={this.closeModal}
+                 backdropType="plain"
+                 forceToFront={false}
+                 containerPointerEvents="box-none"
+                 customShowHandler={this._showModalTransition}
+                 customHideHandler={this._hideModalTransition}
+                 onPressBackdrop={this.closeModal}>
+
+          <View style={styles.modalContainer}>
+            <View style={styles.closeButton}>
+              <TouchableOpacity 
+                onPress={this.closeModal}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.modalRow}>
+              {this._renderModalRow()}
+         
+            </View>
+          </View>
+        </Modal>
       </View>
     );
-  }
+  },
+   _showModalTransition: function(transition) {
+    transition('opacity', {
+      duration: 200,
+      begin: 0,
+      end: 1
+    });
+    transition('height', {
+      duration: 200,
+      begin: - screen.height * 2,
+      end: screen.height
+    });
+  },
+
+  _hideModalTransition: function(transition) {
+    transition('height', {
+      duration: 200,
+      begin: screen.height,
+      end: screen.height * 2,
+      reset: true
+    });
+    transition('opacity', {
+      duration: 200,
+      begin: 1,
+      end: 0
+    });
+  },
 });
 
 var Loading = React.createClass({
@@ -236,6 +376,7 @@ var Loading = React.createClass({
 var styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop:20,
     backgroundColor: 'white',
   },
   list: {
@@ -254,6 +395,46 @@ var styles = StyleSheet.create({
   },
   scrollSpinner: {
     marginVertical: 20,
+  },
+
+  modalContainer: {
+
+    height: screen.height - 400,
+    flex: 1,
+  },
+  modalRow: {
+
+    height: screen.height - 400,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    backgroundColor: 'white',
+    flexDirection: 'row'
+  },
+  modalIcon: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  modalIconText: {
+    color: '#333'
+  },
+
+  closeButton: {
+    position: 'relative',
+    top: 2,
+    left: 240,
+    width:60,
+    borderColor: '#000000',
+    borderRadius: 2,
+    borderWidth: 1,
+
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 5,
+    paddingBottom: 0,
+  },
+  closeButtonText: {
+    color: '#000000',
   },
 });
 

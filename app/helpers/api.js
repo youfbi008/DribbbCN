@@ -10,7 +10,7 @@ module.exports = {
 
  	var url_log = API_URL + '?' + option_type  + 'per_page=' + per_page + '&page=' + pageNumber;
  	url_log += '&access_token=' + access_token;
- 	console.log(url_log);
+ 	console.log('get new page shots.');
     return (
       url_log
     );

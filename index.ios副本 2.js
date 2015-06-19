@@ -120,25 +120,20 @@ var DribbbleApp = React.createClass({
     // );
     return (
 
-
-      <NavigatorIOS 
-        ref="nav"
+      <Navigator 
+        ref="nav_list"
         style={styles.wrapper}
-        navigationBarHidden={true}
         initialRoute={{
           component: ShotList,
-          title: category,
-          passProps: {filter: category, isModalOpen: this.state.isModalOpen},
-          rightButtonIcon: require('image!bars'),
-          onRightButtonPress: () => {
+          passProps: {filter: category},
+          navigationBar: <NavigationBar 
+            title="Popular"
+            customNext={<CustomNext handleModalOpen={this.handleModalOpen}/>}
 
-            this.setState({
-              isModalOpen: !this.state.isModalOpen,
-            });
-          }
+            />
         }}
+        renderScene={this._renderScene}
       />
-
     );
   },
 
@@ -170,7 +165,7 @@ var DribbbleApp = React.createClass({
       var category_name = item.name;
       var isValid = this.checkModalIconEvent(category_name);
       var icon = isValid ? item.icon : item.iv_icon ;
-      var navigator = this.refs.nav;
+      var navigator = this.refs.nav_list;
     
       return <TouchableOpacity 
                   style={styles.modalIcon}
@@ -183,19 +178,14 @@ var DribbbleApp = React.createClass({
                     this.setState({
                         selectedCategory: category_name,
                       });
-                    {/*TODOnavigatorIOS的 replace功能不起作用，但navigator又会导致子页面不正常*/} 
-                    navigator.push({
+                    navigator.replace({
                       component: ShotList,
                       passProps: {filter: category_name},
-                      title: category_name,
-                      backButtonTitle: 'aa',
-                      rightButtonIcon: require('image!bars'),
-                      onRightButtonPress: () => {
-
-                        this.setState({
-                          isModalOpen: !this.state.isModalOpen,
-                        });
-                      }
+                      navigationBar: <NavigationBar 
+                        title={item.title}
+                        customNext={<CustomNext handleModalOpen={this.handleModalOpen}/>}
+                        />
+                      
                     });
                     this.closeModal();
                   }}>
@@ -224,7 +214,6 @@ var DribbbleApp = React.createClass({
               });
             }}>
             {this._renderContent('popular')}
-
           </Icon.TabBarItem>
         {/*  <Icon.TabBarItem
             title="Debuts"

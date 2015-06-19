@@ -1,0 +1,15 @@
+PODS:
+  - jetfire (0.1.2)
+  - React (0.4.0):
+    - React/Core (= 0.4.0)
+  - React/Core (0.4.0)
+
+DEPENDENCIES:
+  - jetfire (= 0.1.2)
+  - React (= 0.4.0)
+
+SPEC CHECKSUMS:
+  jetfire: 5e823aa9248d3de1fac2b7b6d9c6e31ab7d90f0c
+  React: fd7c744a4445caf86b6e6df247845d12a7182c1a
+
+COCOAPODS: 0.36.3
