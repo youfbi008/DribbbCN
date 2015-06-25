@@ -13,16 +13,18 @@ var {
 var getImage = require('./helpers/getImage'),
     screen = require('Dimensions').get('window');
 
-var ShotTwoCellRow = React.createClass({
+var ShotThreeCellRow = React.createClass({
+
   render: function() {
+
     var isGif = getImage.checkGif(this.props.shot); 
+
     return (
       <View>
         <TouchableHighlight onPress={this.props.onSelect}>
           <View style={styles.cellContainer}>
             <Image
-              source={getImage.shotNormalImage(this.props.shot)}
-
+              source={getImage.shotTeaserImage(this.props.shot)}
               style={styles.cellImage}
               accessible={true}
             />
@@ -39,12 +41,13 @@ var ShotTwoCellRow = React.createClass({
 });
 
 var styles = StyleSheet.create({
+
   cellContainer: {
     backgroundColor: 'white',
     flexDirection: 'column',
-    height: screen.width / 2,
-    width: screen.width / 2,
-    padding: 8,
+    height: screen.width / 3,
+    width: screen.width / 3 ,
+    padding: 5,
   },
   cellImage: {
     backgroundColor: 'transparent',
@@ -57,14 +60,14 @@ var styles = StyleSheet.create({
     marginLeft: 4,
   },
   isGif: {
-    width: 23, 
-    height: 20,
+    width: 20, 
+    height: 15,
     backgroundColor: 'transparent',
     position: 'absolute',
-    right: 10, 
-    top: 8,
-    opacity: 0.85
+    right: 6, 
+    top: 6,
+    opacity: 0.9
   }
 });
 
-module.exports = ShotTwoCellRow;
+module.exports = ShotThreeCellRow;

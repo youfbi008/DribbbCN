@@ -15,16 +15,21 @@ var getImage = require('./helpers/getImage'),
 
 var ShotCell = React.createClass({
   render: function() {
+    var isGif = getImage.checkGif(this.props.shot); 
     return (
       <View>
         <TouchableHighlight onPress={this.props.onSelect}>
-          <View style={styles.row}>
+          <View style={styles.cellContainer}>
             <Image
-              source={getImage.shotImage(this.props.shot)}
-         
+              source={getImage.shotHidpiImage(this.props.shot)}
               style={styles.cellImage}
               accessible={true}
             />
+            {isGif && <Image
+              source={require('image!isgif')}
+              style={styles.isGif}
+              resizeMode={true}
+            />}
           </View>
         </TouchableHighlight>
         <View style={styles.cellBorder} />
@@ -34,17 +39,17 @@ var ShotCell = React.createClass({
 });
 
 var styles = StyleSheet.create({
-  textContainer: {
-    flex: 1,
-  },
-  row: {
+
+  cellContainer: {
     backgroundColor: 'white',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    height: screen.width,
+    width: screen.width,
+    padding: 5,
   },
   cellImage: {
     backgroundColor: 'transparent',
-    height: 300,
-    width: screen.width
+    flex: 1
   },
   cellBorder: {
     backgroundColor: 'rgba(0, 0, 0, 0.2)',
@@ -52,6 +57,15 @@ var styles = StyleSheet.create({
     height: 1 / PixelRatio.get(),
     marginLeft: 4,
   },
+  isGif: {
+    width: 40, 
+    height: 30,
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    right: 12, 
+    top: 10,
+    opacity: 0.85
+  }
 });
 
 module.exports = ShotCell;

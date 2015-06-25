@@ -77,8 +77,8 @@ var ShotDetails = React.createClass({
   
     var image_uri = "http://wa-ex.lolipop.jp/test/index.html?uri=" + hidip_url + '&width=' + (screen.width-20) + '&height=' + (screen.height - 200);
     image_uri = 'http://wa-ex.lolipop.jp/test/test.html?uri=' + hidip_url;
- image_uri = 'http://wa-ex.lolipop.jp/test/index.html';
- 
+
+    
     return (
       <View style={styles.pageContainer}>
         <Overlay 
@@ -129,7 +129,7 @@ var ShotDetails = React.createClass({
               <View style={styles.separator} />
               <Text>
                 <HTML value={this.props.shot.description}
-                      stylesheet={descriptionStyles}/>
+                      stylesheet={styles}/>
               </Text>
             </View>
           </View>
@@ -138,13 +138,11 @@ var ShotDetails = React.createClass({
                  onClose={this.closeModal}
                  backdropType="plain"
                  forceToFront={true}
-                 hideCloseButton={true}
                  style={modalStyles}
                  containerPointerEvents="box-none"
                  customShowHandler={this._showModalTransition}
                  customHideHandler={this._hideModalTransition}
                  onPressBackdrop={this.closeModal}>
-
 
                {/*  photoswipe 有很多好的关闭方法，但由于无法回调来关闭modal ，
                可考虑设置modal为无背景  */}
@@ -153,7 +151,7 @@ var ShotDetails = React.createClass({
                   style={styles.webView}
                   url={image_uri}
                   
-                  javaScriptEnabledAndroid={true}
+                  javaScriptEnabledAndroid={false}
                   startInLoadingState={false}
                   bounces={false}
                   scrollEnabled={true}
@@ -277,16 +275,17 @@ var styles = StyleSheet.create({
   pageContainer: {
     flex: 1,
   },
-
+  webView: {
+    height: screen.height - 50,
+  },
   viewContainer: {
     marginTop: 40,
   },
-
-  
-  webView: {
-    height: screen.height,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+  a: {
+    fontWeight: '300',
+    color: '#ea4c89'
   },
+
   invisibleView: {
     flex: 1,
     position: 'absolute',
@@ -385,12 +384,7 @@ var styles = StyleSheet.create({
     color: '#000000',
   },
 });
-var descriptionStyles  = StyleSheet.create({
-  a: {
-    fontWeight: '300',
-    color: '#ea4c89'
-  },
-});
+
 
 var modalStyles  = StyleSheet.create({
   container: {
@@ -427,7 +421,7 @@ var modalStyles  = StyleSheet.create({
     color: '#ffffff',
   },
   modal: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#ffffff',
     borderRadius: 3,
   }
 });

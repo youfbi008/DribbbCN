@@ -12,8 +12,7 @@ var {
 
 var api = require('./helpers/api');
 
-var ShotCell = require('./ShotCell');
-var ShotTwoCellRow = require('./ShotCell');
+var ShotOneCellRow = require('./ShotOneCellRow');
 var ShotDetails = require('./ShotDetails');
 
 
@@ -188,7 +187,7 @@ var ShotList = React.createClass({
       //   shot={shot}
       // />
 
-      <ShotTwoCellRow
+      <ShotOneCellRow
         onSelect={() => this.selectShot(shot)}
         shot={shot}
       />

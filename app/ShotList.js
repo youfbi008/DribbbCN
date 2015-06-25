@@ -3,6 +3,7 @@
 var React = require('react-native');
 var NavigationBar = require('react-native-navbar');
 var Modal = require('react-native-modal');
+var STORAGE_KEY = '@UserStorage:rowCellsCnt';
 var {
   ActivityIndicatorIOS,
   ListView,
@@ -10,13 +11,16 @@ var {
   Text,
   TextInput,
   View,
-  TouchableOpacity
+  TouchableOpacity,
+  Image,
+  AsyncStorage
 } = React;
 
 var api = require('./helpers/api');
 
-var ShotCell = require('./ShotCell');
+var ShotOneCellRow = require('./ShotOneCellRow');
 var ShotTwoCellRow = require('./ShotTwoCellRow');
+var ShotThreeCellRow = require('./ShotThreeCellRow');
 var ShotDetails = require('./ShotDetails');
 var Icon = require('FontAwesome'),
     screen = require('Dimensions').get('window');
@@ -33,29 +37,73 @@ var resultsCache = {
 
 var LOADING = {};
 
+class CustomNext extends React.Component {
+  render() {
+    return (
+      <TouchableOpacity onPress={this.props.handleModalOpen}>
+        <Image
+          source={require('image!bars')}
+          style={{width: 24, height: 24, right: 10, bottom: 5}}
+        />
+      </TouchableOpacity>
+    );
+  }
+}
+var modalResizeItemList = [
+        {id: 1, name: 'one', title: 'One', type: 'one_cell', icon: 'square', iv_icon: 'square'},
+        {id: 2, name: 'two', title: 'Two', type: 'two_cell', icon: 'th-large', iv_icon: 'th-large'},
+        {id: 3, name: 'three', title: 'Three', type: 'three_cell', icon: 'th', iv_icon: 'th'},
+      ];
+
+var modalItemList = [
+        {id: 1, name: 'popular', title: 'Popular', icon: 'heart-o', iv_icon: 'heart'},
+        {id: 2, name: 'debuts', title: 'Debuts', icon: 'heart-o', iv_icon: 'heart'},
+        {id: 3, name: 'teams', title: 'Teams', icon: 'heart-o', iv_icon: 'heart'},
+        {id: 4, name: 'animated', title: 'Animated', icon: 'heart-o', iv_icon: 'heart'},
+        {id: 5, name: 'playoffs', title: 'Playoffs', icon: 'heart-o', iv_icon: 'heart'},
+        {id: 6, name: 'rebounds', title: 'Rebounds', icon: 'heart-o', iv_icon: 'heart'},
+      ];
 var ShotList = React.createClass({
 
   getDefaultProps: function() {
+
+
     return {
-      filter: ''
+      filter: '',
+      jumpCnt: 1,
+      rowCellsCnt: 2,
+      cell_type: 'two_cell'
     };
   },
 
   getInitialState: function() {
+    
+
+
     return {
+      jumpCnt: this.props.jumpCnt,
       isLoading: false,
       isLoadingTail: false,
       dataSource: new ListView.DataSource({
-        rowHasChanged: (row1, row2) => row1 !== row2,
+        rowHasChanged: function(row1, row2) : bool {
+                return (
+                  row1 !== row2 
+                  // ||
+                  // this.state.reloading
+                // (r1["firstName"] !== r2["firstName"]) ||
+                // (r1["lastName"] !== r2["lastName"]) ||
+                // (r1["age"] !== r2["age"])
+                );
+            }
+        // rowHasChanged: (row1, row2) => row1 !== row2,
       }),
       filter: this.props.filter,
+      title: this.props.title,
+      rowCellsCnt: this.props.rowCellsCnt,
+      cell_type: this.props.cell_type,
       queryNumber: 0,
       isModalOpen: false,
-      modalItemList: [
-        {id: 1, name: 'popular', title: 'Popular', icon: 'heart-o', iv_icon: 'heart'},
-        {id: 2, name: 'debuts', title: 'Debuts', icon: 'heart-o', iv_icon: 'heart'},
-        {id: 3, name: 'teams', title: 'Teams', icon: 'heart-o', iv_icon: 'heart'},
-      ]
+
     };
   },
   openModal: function() {
@@ -71,7 +119,7 @@ var ShotList = React.createClass({
   },
 
   checkModalIconEvent: function(category: string) {
-    if(this.state.selectedCategory == category) {
+    if(this.props.nav_stack[this.props.nav_stack.length - 1] == category) {
       return false;
     } else {
       return true;
@@ -83,39 +131,167 @@ var ShotList = React.createClass({
       isModalOpen: !this.state.isModalOpen,
     });
   },
-   _renderModalRow: function() {
+  _renderModalResizeRow: function() {
 
-    var modal_row = this.state.modalItemList.map((item) => {
+    var modal_row = modalResizeItemList.map((item) => {
+      var icon_name = item.name;
+      // var isValid = this.checkModalIconEvent(category_name);
+      // var icon = isValid ? item.icon : item.iv_icon ;
+      // var navigator = this.refs.nav;
+      var icon = item.icon;
+
+      return <TouchableOpacity 
+                  onPress={() => {
+                  
+                    // if(!isValid) {
+                    //   return;
+                    // }
+       
+                    this.setState({
+                      rowCellsCnt: item.id,
+                      cell_type: item.type
+                    });
+                    var query = this.state.filter;
+
+                    this.setState({
+                      isLoading: true,
+                      dataSource: this.getDataSource([]),
+                      // dataSource: this.getDataSource(resultsCache.dataForQuery[this.state.filter]),
+                    });
+
+                    // var cachedResultsForQuery = resultsCache.dataForQuery[query];
+                    // if (cachedResultsForQuery) {
+                     
+                    //   if (!LOADING[query]) {
+                    //     alert(222);
+                    //     this.setState({
+                    //       isLoading: false,
+                    //       dataSource: this.getDataSource(cachedResultsForQuery)
+                    //     });
+                    //   } else {
+                    //     this.setState({isLoading: true});
+                    //   }
+                    // }
+
+                    fetch(api.getShotsByType(query, 1, item.type))
+                      .then((response) => response.json())
+                      .catch((error) => {
+                        LOADING[query] = false;
+                        resultsCache.dataForQuery[query] = undefined;
+
+                        this.setState({
+                          dataSource: this.getDataSource([]),
+                          isLoading: false,
+                        });
+                      })
+                      .then((responseData) => {
+                        LOADING[query] = false;
+                        resultsCache.dataForQuery[query] = responseData;
+                        resultsCache.nextPageNumberForQuery[query] = 2;
+
+                        this.setState({
+                          isLoading: false,
+                          dataSource: this.getDataSource(responseData),
+                        });
+                      })
+                      .done();
+
+                      AsyncStorage.setItem(STORAGE_KEY, String(item.id))
+                        .then(() => console.log(item.id))
+                        .catch((error) => console.log(error.message))
+                        .done();
+
+                    // LocalStore.table("setting").then(function(setting){
+   
+                    //     var res_data = setting.where({
+                    //         title: "rowCellsCnt"
+                    //     }).find();
+
+                    //     if(res_data.length > 0) {
+                    //       if(res_data[0]['content'] != item.id) {
+                    //         var upt_data = {
+                    //             content: item.id
+                    //         };
+                    //           // Update Data
+                    //         var newData = setting.where({
+                    //             title: "rowCellsCnt"
+                    //         }).update(upt_data);
+
+                    //         console.log(newData[0]);
+                    //       }
+                    //     } else {
+                    //           // Add Data
+                    //       var id = setting.add({
+                    //           title: "rowCellsCnt",
+                    //           content: 2
+                    //       });
+                    //     }
+                    // });
+                    
+                    this.closeModal();
+                  }}>
+                <View style={styles.modalIcon}>
+                  <Icon name={icon} size={24} color="#333"/>
+                  <Text style={styles.modalIconText}>{icon_name}</Text>
+                </View>
+            </TouchableOpacity>
+    });
+    return (
+      {modal_row}
+    );
+  },
+
+  _renderModalRow: function() {
+
+    var modal_row = modalItemList.map((item) => {
       var category_name = item.name;
       var isValid = this.checkModalIconEvent(category_name);
       var icon = isValid ? item.icon : item.iv_icon ;
       // var navigator = this.refs.nav;
     
       return <TouchableOpacity 
-                  style={styles.modalIcon}
                   onPress={() => {
                   
-                    if(!isValid) {
-                      return;
-                    }
-                    var old_category = this.state.selectedCategory;
-                    this.setState({
-                        selectedCategory: category_name,
-                      });
-                    {/*TODOnavigatorIOS的 replace功能不起作用，但navigator又会导致子页面不正常*/} 
-                    this.props.navigator.push({
-                      component: ShotList,
-                      passProps: {filter: category_name},
-                      title: category_name,
-                      backButtonTitle: 'aa',
-                      rightButtonIcon: require('image!bars'),
-                      onRightButtonPress: () => {
+                    // if(!isValid) {
+                    //   return;
+                    // }
+       
+                    
+                    var newJumpCnt = parseInt(this.props.jumpCnt) + 1;
+                    console.log(this.props.jumpCnt);
+                    console.log(newJumpCnt);
 
-                        this.setState({
-                          isModalOpen: !this.state.isModalOpen,
-                        });
-                      }
-                    });
+
+                    var newNav_stack = this.props.nav_stack;
+                    var index = newNav_stack.indexOf(category_name);
+                    if(index > -1) {
+                      var pop_num = newNav_stack.length - 1 - index;
+                      this.props.navigator.popN(pop_num);
+                      for (var i = pop_num; i > 0; i--) {
+                        newNav_stack.pop();
+                      };
+                      this.props.handleNavStack(newNav_stack);
+                    } else {
+                      newNav_stack.push(category_name);
+                      console.log(newNav_stack);
+                      // if(this.props.jumpCnt % 2 == 0) {
+                      //   this.props.navigator.replacePreviousAndPop({
+                      //     component: ShotList,
+                      //     passProps: {filter: category_name, title: item.title, jumpCnt: newJumpCnt},
+                      
+                      //   });
+                      // } else {
+
+                      {/*TODOnavigatorIOS的 replace功能不起作用，但navigator又会导致子页面不正常*/} 
+                      this.props.navigator.push({
+                        component: ShotList,
+                        passProps: {filter: category_name, title: item.title, jumpCnt: newJumpCnt, nav_stack: newNav_stack,handleNavStack: this.props.handleNavStack},
+                    
+                      });
+                    // }
+                    }
+                     
+
                     this.closeModal();
                   }}>
                 <View style={styles.modalIcon}>
@@ -129,7 +305,31 @@ var ShotList = React.createClass({
     );
   },
   componentWillMount: function() {
-    this.getShots(this.state.filter);
+
+    AsyncStorage.getItem(STORAGE_KEY)
+      .then((value) => {
+        if (value !== null){
+          this.setState({rowCellsCnt: value});
+          if(value == 1) {
+            this.setState({cell_type: 'one_type'});
+          } else if(value == 2) {
+            this.setState({cell_type: 'two_type'});
+          } else if(value == 3) {
+            this.setState({cell_type: 'three_type'});
+          }
+        } else {
+           AsyncStorage.setItem(STORAGE_KEY, "2")
+            .then(() => console.log(2))
+            .catch((error) => console.log(error.message))
+            .done();
+        }
+        this.getShots(this.state.filter);
+      })
+      .catch((error) => {
+        console.log(error.message);
+        this.getShots(this.state.filter);
+      })
+      .done();
   },
 
   getShots: function(query: string) {
@@ -156,7 +356,7 @@ var ShotList = React.createClass({
       isLoadingTail: false,
     });
 
-    fetch(api.getShotsByType(query, 1))
+    fetch(api.getShotsByType(query, 1, this.state.cell_type))
       .then((response) => response.json())
       .catch((error) => {
         LOADING[query] = false;
@@ -242,10 +442,12 @@ var ShotList = React.createClass({
   },
 
   getDataSource: function(shots: Array<any>): ListView.DataSource {
+    
     return this.state.dataSource.cloneWithRows(shots);
   },
 
   selectShot: function(shot: Object) {
+
     this.props.navigator.push({
       component: ShotDetails,
       passProps: {shot},
@@ -263,21 +465,37 @@ var ShotList = React.createClass({
     if (!this.hasMore() || !this.state.isLoadingTail) {
       return <View style={styles.scrollSpinner} />;
     }
-    return <ActivityIndicatorIOS style={styles.scrollSpinner} />;
+    return <ActivityIndicatorIOS 
+      style={styles.scrollSpinner}
+      size="small"
+      color="blue" />;
   },
 
   renderRow: function(shot: Object)  {
-    return (
-      // <ShotCell
-      //   onSelect={() => this.selectShot(shot)}
-      //   shot={shot}
-      // />
+  
+    if(this.state.rowCellsCnt == 1) {
+      return (
+        <ShotOneCellRow
+          onSelect={() => this.selectShot(shot)}
+          shot={shot}
+        />
+      );
+    } else if(this.state.rowCellsCnt == 3) {
+      return (
+        <ShotThreeCellRow
+          onSelect={() => this.selectShot(shot)}
+          shot={shot}
+        />
+      );
+    } else if(this.state.rowCellsCnt == 2) {
+      return (
 
-      <ShotTwoCellRow
-        onSelect={() => this.selectShot(shot)}
-        shot={shot}
-      />
-    );
+        <ShotTwoCellRow
+          onSelect={() => this.selectShot(shot)}
+          shot={shot}
+        />
+      );
+    }  
   },
 
   render: function() {
@@ -285,6 +503,7 @@ var ShotList = React.createClass({
       <Loading/> :
       <ListView
         ref="listview"
+        initialListSize="20"
         contentContainerStyle={styles.list}
         dataSource={this.state.dataSource}
         renderFooter={this.renderFooter}
@@ -294,16 +513,16 @@ var ShotList = React.createClass({
         keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps={true}
         showsVerticalScrollIndicator={false}
+
       />;
 
     return (
       <View style={styles.container}>
-           <View style={styles.closeButton}>
-              <TouchableOpacity 
-                onPress={this.openModal}>
-                <Text style={styles.closeButtonText}>菜单</Text>
-              </TouchableOpacity>
-            </View>
+        <NavigationBar 
+          navigator={this.props.navigator} 
+          title={this.props.title} 
+          hidePrev={true}
+          customNext={<CustomNext handleModalOpen={this.handleModalOpen}/>}/>
         <View style={styles.separator} />
        
         {content}
@@ -323,12 +542,19 @@ var ShotList = React.createClass({
                 <Text style={styles.closeButtonText}>Close</Text>
               </TouchableOpacity>
             </View>
+
+            <View style={styles.modalResizeRow}>
+              {this._renderModalResizeRow()}
+         
+            </View>
+
             <View style={styles.modalRow}>
               {this._renderModalRow()}
          
             </View>
           </View>
         </Modal>
+
       </View>
     );
   },
@@ -367,6 +593,7 @@ var Loading = React.createClass({
         <ActivityIndicatorIOS
             animating={this.props.isLoading}
             style={styles.spinner}
+            size="large"
           />
       </View>
     );
@@ -376,7 +603,6 @@ var Loading = React.createClass({
 var styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop:20,
     backgroundColor: 'white',
   },
   list: {
@@ -391,38 +617,54 @@ var styles = StyleSheet.create({
     backgroundColor: '#eeeeee',
   },
   spinner: {
-    width: 50,
+    marginTop:100,
+    width: 100,
   },
   scrollSpinner: {
-    marginVertical: 20,
+    marginVertical: 25,
+    marginBottom:50,
+    width: 100,
   },
 
   modalContainer: {
-
-    height: screen.height - 400,
+    position: 'relative',
+    height: screen.height - 200,
     flex: 1,
+  },
+  modalResizeRow: {
+
+    marginTop: 40,
+    alignItems: 'flex-start',
+    justifyContent: 'space-around',
+
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingBottom: 40,
   },
   modalRow: {
 
-    height: screen.height - 400,
-    flex: 1,
-    alignItems: 'center',
+    marginTop: 40,
+    alignItems: 'flex-end',
     justifyContent: 'space-around',
+
     backgroundColor: 'white',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingBottom: 40,
   },
   modalIcon: {
-    flex: 1,
     alignItems: 'center',
+    width: 80,
+    marginBottom: 10,
   },
   modalIconText: {
     color: '#333'
   },
-
   closeButton: {
     position: 'relative',
-    top: 2,
-    left: 240,
+    top: 0,
+    left: 160,
     width:60,
     borderColor: '#000000',
     borderRadius: 2,
