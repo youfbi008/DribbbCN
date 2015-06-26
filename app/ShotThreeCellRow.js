@@ -31,7 +31,6 @@ var ShotThreeCellRow = React.createClass({
             {isGif && <Image
               source={require('image!isgif')}
               style={styles.isGif}
-              resizeMode={true}
             />}
           </View>
         </TouchableHighlight>
@@ -66,7 +65,8 @@ var styles = StyleSheet.create({
     position: 'absolute',
     right: 6, 
     top: 6,
-    opacity: 0.9
+    opacity: 0.9,
+    resizeMode: "contain",
   }
 });
 

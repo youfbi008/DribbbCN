@@ -77,7 +77,7 @@ var ShotDetails = React.createClass({
   
     var image_uri = "http://wa-ex.lolipop.jp/test/index.html?uri=" + hidip_url + '&width=' + (screen.width-20) + '&height=' + (screen.height - 200);
     image_uri = 'http://wa-ex.lolipop.jp/test/test.html?uri=' + hidip_url;
- image_uri = 'http://wa-ex.lolipop.jp/test/index.html';
+ // image_uri = 'http://wa-ex.lolipop.jp/test/index.html';
  
     return (
       <View style={styles.pageContainer}>
@@ -282,7 +282,6 @@ var styles = StyleSheet.create({
     marginTop: 40,
   },
 
-  
   webView: {
     height: screen.height,
     backgroundColor: 'rgba(255,255,255,0.2)',
@@ -385,6 +384,8 @@ var styles = StyleSheet.create({
     color: '#000000',
   },
 });
+
+
 var descriptionStyles  = StyleSheet.create({
   a: {
     fontWeight: '300',
@@ -427,7 +428,7 @@ var modalStyles  = StyleSheet.create({
     color: '#ffffff',
   },
   modal: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#000000',
     borderRadius: 3,
   }
 });

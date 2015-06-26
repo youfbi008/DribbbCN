@@ -55,6 +55,12 @@ var modalResizeItemList = [
         {id: 3, name: 'three', title: 'Three', type: 'three_cell', icon: 'th', iv_icon: 'th'},
       ];
 
+var modalSortItemList = [
+        {id: 1, name: 'popular', title: 'Popular', type: 'one_cell', icon: 'square', iv_icon: 'square'},
+        {id: 2, name: 'recent', title: 'Recent', type: 'two_cell', icon: 'th-large', iv_icon: 'th-large'},
+        {id: 3, name: 'Viewed', title: 'Most Viewed', type: 'three_cell', icon: 'th', iv_icon: 'th'},
+      ];
+
 var modalItemList = [
         {id: 1, name: 'popular', title: 'Popular', icon: 'heart-o', iv_icon: 'heart'},
         {id: 2, name: 'debuts', title: 'Debuts', icon: 'heart-o', iv_icon: 'heart'},
@@ -135,6 +141,7 @@ var ShotList = React.createClass({
 
     var modal_row = modalResizeItemList.map((item) => {
       var icon_name = item.name;
+      var title = item.title;
       // var isValid = this.checkModalIconEvent(category_name);
       // var icon = isValid ? item.icon : item.iv_icon ;
       // var navigator = this.refs.nav;
@@ -232,7 +239,92 @@ var ShotList = React.createClass({
                   }}>
                 <View style={styles.modalIcon}>
                   <Icon name={icon} size={24} color="#333"/>
-                  <Text style={styles.modalIconText}>{icon_name}</Text>
+                  <Text style={styles.modalIconText}>{title}</Text>
+                </View>
+            </TouchableOpacity>
+    });
+    return (
+      {modal_row}
+    );
+  },
+
+  _renderModalSortRow: function() {
+
+    var modal_row = modalSortItemList.map((item) => {
+      var category_name = item.name;
+      var isValid = this.checkModalIconEvent(category_name);
+      var icon = isValid ? item.icon : item.iv_icon ;
+      // var navigator = this.refs.nav;
+    
+      return <TouchableOpacity 
+                  onPress={() => {
+                  
+                    // if(!isValid) {
+                    //   return;
+                    // }
+       
+        this.setState({
+                      rowCellsCnt: item.id,
+                      cell_type: item.type
+                    });
+                    var query = this.state.filter;
+
+                    this.setState({
+                      isLoading: true,
+                      dataSource: this.getDataSource([]),
+                      // dataSource: this.getDataSource(resultsCache.dataForQuery[this.state.filter]),
+                    });
+
+                    // var cachedResultsForQuery = resultsCache.dataForQuery[query];
+                    // if (cachedResultsForQuery) {
+                     
+                    //   if (!LOADING[query]) {
+                    //     alert(222);
+                    //     this.setState({
+                    //       isLoading: false,
+                    //       dataSource: this.getDataSource(cachedResultsForQuery)
+                    //     });
+                    //   } else {
+                    //     this.setState({isLoading: true});
+                    //   }
+                    // }
+
+                    fetch(api.getShotsByType(query, 1, item.type))
+                      .then((response) => response.json())
+                      .catch((error) => {
+                        LOADING[query] = false;
+                        resultsCache.dataForQuery[query] = undefined;
+
+                        this.setState({
+                          dataSource: this.getDataSource([]),
+                          isLoading: false,
+                        });
+                      })
+                      .then((responseData) => {
+                        LOADING[query] = false;
+                        resultsCache.dataForQuery[query] = responseData;
+                        resultsCache.nextPageNumberForQuery[query] = 2;
+
+                        this.setState({
+                          isLoading: false,
+                          dataSource: this.getDataSource(responseData),
+                        });
+                      })
+                      .done();
+
+                      AsyncStorage.setItem(STORAGE_KEY, String(item.id))
+                        .then(() => console.log(item.id))
+                        .catch((error) => console.log(error.message))
+                        .done();
+
+
+                     
+
+                    this.closeModal();
+                  }}>
+                <View style={styles.modalIcon}>
+                  <Icon name={icon} size={24} color="#333"/>
+                  <Text style={styles.modalIconText}>{item.title}</Text>
                 </View>
             </TouchableOpacity>
     });
@@ -245,6 +337,7 @@ var ShotList = React.createClass({
 
     var modal_row = modalItemList.map((item) => {
       var category_name = item.name;
+      var title = item.title;
       var isValid = this.checkModalIconEvent(category_name);
       var icon = isValid ? item.icon : item.iv_icon ;
       // var navigator = this.refs.nav;
@@ -285,7 +378,7 @@ var ShotList = React.createClass({
                       {/*TODOnavigatorIOS的 replace功能不起作用，但navigator又会导致子页面不正常*/} 
                       this.props.navigator.push({
                         component: ShotList,
-                        passProps: {filter: category_name, title: item.title, jumpCnt: newJumpCnt, nav_stack: newNav_stack,handleNavStack: this.props.handleNavStack},
+                        passProps: {filter: category_name, title: title, jumpCnt: newJumpCnt, nav_stack: newNav_stack,handleNavStack: this.props.handleNavStack},
                     
                       });
                     // }
@@ -296,7 +389,7 @@ var ShotList = React.createClass({
                   }}>
                 <View style={styles.modalIcon}>
                   <Icon name={icon} size={24} color="#333"/>
-                  <Text style={styles.modalIconText}>{category_name}</Text>
+                  <Text style={styles.modalIconText}>{title}</Text>
                 </View>
             </TouchableOpacity>
     });
@@ -503,7 +596,7 @@ var ShotList = React.createClass({
       <Loading/> :
       <ListView
         ref="listview"
-        initialListSize="20"
+        initialListSize={20}
         contentContainerStyle={styles.list}
         dataSource={this.state.dataSource}
         renderFooter={this.renderFooter}
@@ -545,7 +638,10 @@ var ShotList = React.createClass({
 
             <View style={styles.modalResizeRow}>
               {this._renderModalResizeRow()}
-         
+            </View>
+
+            <View style={styles.modalSortRow}>
+              {this._renderModalSortRow()}
             </View>
 
             <View style={styles.modalRow}>
@@ -637,7 +733,16 @@ var styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'space-around',
 
-    backgroundColor: 'white',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingBottom: 40,
+  },
+  modalSortRow: {
+
+    marginTop: 40,
+    alignItems: 'flex-start',
+    justifyContent: 'space-around',
+
     flexDirection: 'row',
     flexWrap: 'wrap',
     paddingBottom: 40,

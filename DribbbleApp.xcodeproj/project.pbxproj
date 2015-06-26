@@ -20,6 +20,8 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		146834051AC3E58100842450 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
 		58018FDC1B33121A004B5118 /* bars.png in Resources */ = {isa = PBXBuildFile; fileRef = 58018FDB1B33121A004B5118 /* bars.png */; };
+		5802E0B71B3C6EDD005AA782 /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 5802E0B61B3C6EDD005AA782 /* main.jsbundle */; };
+		5802E0C71B3C6F07005AA782 /* Foundation.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C544F2941B29F55400EFFA3D /* Foundation.ttf */; };
 		581410CD1B350AA70010FC70 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 581410CC1B350AA70010FC70 /* libicucore.dylib */; };
 		581410F71B3511570010FC70 /* RCTWebSocket.xcodeproj in Frameworks */ = {isa = PBXBuildFile; fileRef = 581410EA1B3511280010FC70 /* RCTWebSocket.xcodeproj */; };
 		581410FE1B3511690010FC70 /* libRCTWebSocket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 581410F61B3511280010FC70 /* libRCTWebSocket.a */; };
@@ -173,6 +175,7 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = iOS/main.m; sourceTree = "<group>"; };
 		146833FF1AC3E56700842450 /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
 		58018FDB1B33121A004B5118 /* bars.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bars.png; sourceTree = "<group>"; };
+		5802E0B61B3C6EDD005AA782 /* main.jsbundle */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.jsbundle; path = iOS/main.jsbundle; sourceTree = "<group>"; };
 		581410CC1B350AA70010FC70 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		581410E81B3511280010FC70 /* RCTSRWebSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTSRWebSocket.h; sourceTree = "<group>"; };
 		581410E91B3511280010FC70 /* RCTSRWebSocket.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTSRWebSocket.m; sourceTree = "<group>"; };
@@ -301,6 +304,7 @@
 		13B07FAE1A68108700A75B9A /* DribbbleApp */ = {
 			isa = PBXGroup;
 			children = (
+				5802E0B61B3C6EDD005AA782 /* main.jsbundle */,
 				58018FDA1B33121A004B5118 /* Images */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -751,6 +755,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5802E0C71B3C6F07005AA782 /* Foundation.ttf in Resources */,
+				5802E0B71B3C6EDD005AA782 /* main.jsbundle in Resources */,
 				58FFE6481B3C40E50005F15D /* isgif.png in Resources */,
 				C544F29E1B29F55400EFFA3D /* Zocial.ttf in Resources */,
 				C544F29C1B29F55400EFFA3D /* Ionicons.ttf in Resources */,
