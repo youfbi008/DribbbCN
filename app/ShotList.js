@@ -35,6 +35,8 @@ var resultsCache = {
   totalForQuery: {},
 };
 
+var USER_STORE = "user_store";
+
 var LOADING = {};
 
 class CustomNext extends React.Component {
@@ -50,15 +52,16 @@ class CustomNext extends React.Component {
   }
 }
 var modalResizeItemList = [
-        {id: 1, name: 'one', title: 'One', type: 'one_cell', icon: 'square', iv_icon: 'square'},
-        {id: 2, name: 'two', title: 'Two', type: 'two_cell', icon: 'th-large', iv_icon: 'th-large'},
-        {id: 3, name: 'three', title: 'Three', type: 'three_cell', icon: 'th', iv_icon: 'th'},
+        {id: 1, name: 'one', title: 'One', size: 6, type: 'one_cell', icon: 'square', iv_icon: 'heart-o'},
+        {id: 2, name: 'two', title: 'Two', size: 10, type: 'two_cell', icon: 'th-large', iv_icon: 'heart-o'},
+        {id: 3, name: 'three', title: 'Three', size: 12, type: 'three_cell', icon: 'th', iv_icon: 'heart-o'},
       ];
 
 var modalSortItemList = [
-        {id: 1, name: 'popular', title: 'Popular', type: 'one_cell', icon: 'square', iv_icon: 'square'},
-        {id: 2, name: 'recent', title: 'Recent', type: 'two_cell', icon: 'th-large', iv_icon: 'th-large'},
-        {id: 3, name: 'Viewed', title: 'Most Viewed', type: 'three_cell', icon: 'th', iv_icon: 'th'},
+        {id: 1, name: 'popular', title: 'Popular', type: 'one_cell', icon: 'heart-o', iv_icon: 'heart'},
+        {id: 2, name: 'recent', title: 'Recent', type: 'two_cell', icon: 'heart-o', iv_icon: 'heart'},
+        {id: 3, name: 'views', title: 'Most Viewed', type: 'three_cell', icon: 'heart-o', iv_icon: 'heart'},
+        // {id: 4, name: 'comments', title: 'Most Commented', type: 'three_cell', icon: 'th', iv_icon: 'th'},
       ];
 
 var modalItemList = [
@@ -78,7 +81,8 @@ var ShotList = React.createClass({
       filter: '',
       jumpCnt: 1,
       rowCellsCnt: 2,
-      cell_type: 'two_cell'
+      page_size: 10,
+      sort_type: 'popular',
     };
   },
 
@@ -106,9 +110,12 @@ var ShotList = React.createClass({
       filter: this.props.filter,
       title: this.props.title,
       rowCellsCnt: this.props.rowCellsCnt,
-      cell_type: this.props.cell_type,
+      page_size: this.props.page_size,
+      sort_type: this.props.sort_type,
       queryNumber: 0,
       isModalOpen: false,
+      isReLoading: false,
+      user_data: {}
 
     };
   },
@@ -122,6 +129,22 @@ var ShotList = React.createClass({
     this.setState({
       isModalOpen: false
     });
+  },
+
+  checkModalResizeIconEvent: function(rowCellsCnt: string) {
+    if(this.state.rowCellsCnt == rowCellsCnt) {
+      return false;
+    } else {
+      return true;
+    }
+  },
+
+  checkModalSortIconEvent: function(sort_type: string) {
+    if(this.state.sort_type == sort_type) {
+      return false;
+    } else {
+      return true;
+    }
   },
 
   checkModalIconEvent: function(category: string) {
@@ -142,45 +165,31 @@ var ShotList = React.createClass({
     var modal_row = modalResizeItemList.map((item) => {
       var icon_name = item.name;
       var title = item.title;
-      // var isValid = this.checkModalIconEvent(category_name);
-      // var icon = isValid ? item.icon : item.iv_icon ;
-      // var navigator = this.refs.nav;
-      var icon = item.icon;
+      var rowCellsCnt = item.id;
+      var isValid = this.checkModalResizeIconEvent(rowCellsCnt);
+      var icon = isValid ? item.icon : item.iv_icon ;
 
       return <TouchableOpacity 
                   onPress={() => {
                   
-                    // if(!isValid) {
-                    //   return;
-                    // }
+                    if(!isValid) {
+                      return;
+                    }
        
                     this.setState({
-                      rowCellsCnt: item.id,
-                      cell_type: item.type
+                      rowCellsCnt: rowCellsCnt,
+                      page_size: item.size,
+                      isReLoading: true,
                     });
                     var query = this.state.filter;
 
-                    this.setState({
-                      isLoading: true,
-                      dataSource: this.getDataSource([]),
-                      // dataSource: this.getDataSource(resultsCache.dataForQuery[this.state.filter]),
-                    });
+                    {/* 考虑可以不清空再显示这种效果 或者在左上角显示*/}
+                    // this.setState({
+                    //   isLoading: true,
+                    //   dataSource: this.getDataSource([]),
+                    // });
 
-                    // var cachedResultsForQuery = resultsCache.dataForQuery[query];
-                    // if (cachedResultsForQuery) {
-                     
-                    //   if (!LOADING[query]) {
-                    //     alert(222);
-                    //     this.setState({
-                    //       isLoading: false,
-                    //       dataSource: this.getDataSource(cachedResultsForQuery)
-                    //     });
-                    //   } else {
-                    //     this.setState({isLoading: true});
-                    //   }
-                    // }
-
-                    fetch(api.getShotsByType(query, 1, item.type))
+                    fetch(api.getShotsByType(query, 1, item.size, this.state.sort_type))
                       .then((response) => response.json())
                       .catch((error) => {
                         LOADING[query] = false;
@@ -188,7 +197,7 @@ var ShotList = React.createClass({
 
                         this.setState({
                           dataSource: this.getDataSource([]),
-                          isLoading: false,
+                          // isLoading: false,
                         });
                       })
                       .then((responseData) => {
@@ -197,14 +206,19 @@ var ShotList = React.createClass({
                         resultsCache.nextPageNumberForQuery[query] = 2;
 
                         this.setState({
-                          isLoading: false,
+                          // isLoading: false,
+                          isReLoading: false,
                           dataSource: this.getDataSource(responseData),
                         });
                       })
                       .done();
 
-                      AsyncStorage.setItem(STORAGE_KEY, String(item.id))
-                        .then(() => console.log(item.id))
+                      var user_data = this.state.user_data;
+
+                      user_data['rowCellsCnt'] = rowCellsCnt;
+
+                      AsyncStorage.setItem(USER_STORE, JSON.stringify(user_data))
+                        .then(() => console.log('rowCellsCnt:' + item.id))
                         .catch((error) => console.log(error.message))
                         .done();
 
@@ -251,45 +265,33 @@ var ShotList = React.createClass({
   _renderModalSortRow: function() {
 
     var modal_row = modalSortItemList.map((item) => {
-      var category_name = item.name;
-      var isValid = this.checkModalIconEvent(category_name);
+      var sort_type = item.name;
+      var isValid = this.checkModalSortIconEvent(sort_type);
       var icon = isValid ? item.icon : item.iv_icon ;
-      // var navigator = this.refs.nav;
     
       return <TouchableOpacity 
                   onPress={() => {
                   
-                    // if(!isValid) {
-                    //   return;
-                    // }
+                    if(!isValid) {
+                      return;
+                    }
        
-        this.setState({
-                      rowCellsCnt: item.id,
-                      cell_type: item.type
+                    this.setState({
+                      sort_type: sort_type,
+                      isReLoading: true
                     });
                     var query = this.state.filter;
 
-                    this.setState({
-                      isLoading: true,
-                      dataSource: this.getDataSource([]),
-                      // dataSource: this.getDataSource(resultsCache.dataForQuery[this.state.filter]),
-                    });
+  // this.refs.navBar.loading();
+                    // this.refs.navBar.title = "aaa";
+                    {/* 考虑可以不清空再显示这种效果 或者在左上角显示*/}
+                    // this.setState({
+                    //   isLoading: true,
+                    //   dataSource: this.getDataSource([]),
+                    // });
 
-                    // var cachedResultsForQuery = resultsCache.dataForQuery[query];
-                    // if (cachedResultsForQuery) {
-                     
-                    //   if (!LOADING[query]) {
-                    //     alert(222);
-                    //     this.setState({
-                    //       isLoading: false,
-                    //       dataSource: this.getDataSource(cachedResultsForQuery)
-                    //     });
-                    //   } else {
-                    //     this.setState({isLoading: true});
-                    //   }
-                    // }
 
-                    fetch(api.getShotsByType(query, 1, item.type))
+                    fetch(api.getShotsByType(query, 1, this.state.page_size, sort_type))
                       .then((response) => response.json())
                       .catch((error) => {
                         LOADING[query] = false;
@@ -297,7 +299,7 @@ var ShotList = React.createClass({
 
                         this.setState({
                           dataSource: this.getDataSource([]),
-                          isLoading: false,
+                          isReLoading: false,
                         });
                       })
                       .then((responseData) => {
@@ -306,19 +308,13 @@ var ShotList = React.createClass({
                         resultsCache.nextPageNumberForQuery[query] = 2;
 
                         this.setState({
-                          isLoading: false,
+                          isReLoading: false,
                           dataSource: this.getDataSource(responseData),
                         });
                       })
                       .done();
 
-                      AsyncStorage.setItem(STORAGE_KEY, String(item.id))
-                        .then(() => console.log(item.id))
-                        .catch((error) => console.log(error.message))
-                        .done();
-
-
-                     
+          
 
                     this.closeModal();
                   }}>
@@ -345,10 +341,9 @@ var ShotList = React.createClass({
       return <TouchableOpacity 
                   onPress={() => {
                   
-                    // if(!isValid) {
-                    //   return;
-                    // }
-       
+                    if(!isValid) {
+                      return;
+                    }
                     
                     var newJumpCnt = parseInt(this.props.jumpCnt) + 1;
                     console.log(this.props.jumpCnt);
@@ -399,23 +394,17 @@ var ShotList = React.createClass({
   },
   componentWillMount: function() {
 
-    AsyncStorage.getItem(STORAGE_KEY)
+    {/* 由于在分类跳转时每次都读 可以考虑放到父组件里，子组件调用父组件属性 
+    或者在componentWillReceiveProps中更新值，然后通过属性依次传递下去  */}
+    AsyncStorage.getItem(USER_STORE)
       .then((value) => {
-        if (value !== null){
-          this.setState({rowCellsCnt: value});
-          if(value == 1) {
-            this.setState({cell_type: 'one_type'});
-          } else if(value == 2) {
-            this.setState({cell_type: 'two_type'});
-          } else if(value == 3) {
-            this.setState({cell_type: 'three_type'});
-          }
-        } else {
-           AsyncStorage.setItem(STORAGE_KEY, "2")
-            .then(() => console.log(2))
-            .catch((error) => console.log(error.message))
-            .done();
-        }
+        if( typeof value != undefined && value != null){
+          var localUserStore = JSON.parse(value);
+          var rowCellsCnt = localUserStore['rowCellsCnt'];
+          this.setState({rowCellsCnt: rowCellsCnt});
+          this.setState({page_size: modalResizeItemList[rowCellsCnt - 1].size});
+          this.setState({user_data: localUserStore});
+        } 
         this.getShots(this.state.filter);
       })
       .catch((error) => {
@@ -423,6 +412,26 @@ var ShotList = React.createClass({
         this.getShots(this.state.filter);
       })
       .done();
+
+    // AsyncStorage.getItem(STORAGE_KEY)
+    //   .then((value) => {
+    //     if (value !== null){
+    //       this.setState({rowCellsCnt: value});
+    //       this.setState({page_size: modalResizeItemList[value - 1].size});
+    //     } else {
+    //        AsyncStorage.setItem(STORAGE_KEY, "2")
+    //         .then(() => console.log(2))
+    //         .catch((error) => console.log(error.message))
+    //         .done();
+    //     }
+    //     this.getShots(this.state.filter);
+    //   })
+    //   .catch((error) => {
+    //     console.log(error.message);
+    //     this.getShots(this.state.filter);
+    //   })
+    //   .done();
+   
   },
 
   getShots: function(query: string) {
@@ -449,7 +458,7 @@ var ShotList = React.createClass({
       isLoadingTail: false,
     });
 
-    fetch(api.getShotsByType(query, 1, this.state.cell_type))
+    fetch(api.getShotsByType(query, 1, this.state.page_size, this.state.sort_type))
       .then((response) => response.json())
       .catch((error) => {
         LOADING[query] = false;
@@ -502,7 +511,7 @@ var ShotList = React.createClass({
     });
 
     var page = resultsCache.nextPageNumberForQuery[query];
-    fetch(api.getShotsByType(query, page))
+    fetch(api.getShotsByType(query, page, this.state.page_size, this.state.sort_type))
       .then((response) => response.json())
       .catch((error) => {
         console.error(error);
@@ -561,7 +570,7 @@ var ShotList = React.createClass({
     return <ActivityIndicatorIOS 
       style={styles.scrollSpinner}
       size="small"
-      color="blue" />;
+       />;
   },
 
   renderRow: function(shot: Object)  {
@@ -612,12 +621,15 @@ var ShotList = React.createClass({
     return (
       <View style={styles.container}>
         <NavigationBar 
+          ref="navBar"
           navigator={this.props.navigator} 
           title={this.props.title} 
           hidePrev={true}
-          customNext={<CustomNext handleModalOpen={this.handleModalOpen}/>}/>
+          customNext={<CustomNext handleModalOpen={this.handleModalOpen}/>}
+          isReloading={this.state.isReLoading || this.state.isLoadingTail}/>
+
         <View style={styles.separator} />
-       
+
         {content}
         <Modal isVisible={this.state.isModalOpen}
                  onClose={this.closeModal}
@@ -712,13 +724,19 @@ var styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#eeeeee',
   },
+  reload_spinner: {
+    position: 'absolute',
+    backgroundColor: 'transparent',
+    top: -30,
+    left: 30,
+  },
   spinner: {
     marginTop:100,
     width: 100,
   },
   scrollSpinner: {
-    marginVertical: 25,
-    marginBottom:50,
+    marginVertical: 20,
+    marginBottom: 50,
     width: 100,
   },
 
@@ -735,21 +753,20 @@ var styles = StyleSheet.create({
 
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingBottom: 40,
+    paddingBottom: 20,
   },
   modalSortRow: {
 
-    marginTop: 40,
+    marginTop: 20,
     alignItems: 'flex-start',
     justifyContent: 'space-around',
 
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingBottom: 40,
   },
   modalRow: {
 
-    marginTop: 40,
+    marginTop: 20,
     alignItems: 'flex-end',
     justifyContent: 'space-around',
 

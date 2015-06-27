@@ -15,7 +15,8 @@ var {
   View,
   Text,
   TouchableOpacity,
-  TouchableHighlight
+  TouchableHighlight,
+  AsyncStorage
 } = React;
 
 
@@ -25,6 +26,7 @@ var ShotList = require('./app/ShotList'),
     screen = require('Dimensions').get('window');
 
 
+var USER_STORE = "user_store";
 
 var DribbbleApp = React.createClass({
   getInitialState: function() {
@@ -43,7 +45,7 @@ var DribbbleApp = React.createClass({
   
   _renderContent: function(category: string) {
 
-    
+   
     return (
       <NavigatorIOS 
         ref="nav"
@@ -81,6 +83,44 @@ var DribbbleApp = React.createClass({
     );
   },
  
+  componentWillMount: function() {
+
+    // AsyncStorage.getItem(USER_STORE)
+    //   .then((value) => {
+    //     if (value !== null){
+    //       var localStore = JSON.parse(res);
+    //       this.setState({rowCellsCnt: localStore['rowCellsCnt']});
+    //     } 
+    //   })
+    //   .catch((error) => {
+    //     console.log(error.message);
+    //   })
+    //   .done();
+    // AsyncStorage.clear();
+    AsyncStorage.getItem(USER_STORE)
+      .then((value) => {
+        if( typeof value == undefined || value == null){
+          // 默认数据
+            var data = { rowCellsCnt: 2};
+            AsyncStorage.setItem(USER_STORE, JSON.stringify(data), function(err) {
+                if (err) {
+                    console.error("error");
+                }
+            });
+        }
+        
+      })
+      .catch((error) => {
+        console.log(error.message);
+      })
+      .done();
+  },
+  componentDidMount: function() {
+
+
+     
+  },
+
   render: function() {
 
     return (

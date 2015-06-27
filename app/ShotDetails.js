@@ -75,8 +75,8 @@ var ShotDetails = React.createClass({
       hidip_url = cur_img_url['uri'];
     }
   
-    var image_uri = "http://wa-ex.lolipop.jp/test/index.html?uri=" + hidip_url + '&width=' + (screen.width-20) + '&height=' + (screen.height - 200);
-    image_uri = 'http://wa-ex.lolipop.jp/test/test.html?uri=' + hidip_url;
+   
+   var image_uri = 'http://wa-ex.lolipop.jp/test/test.html?uri=' + hidip_url;
  // image_uri = 'http://wa-ex.lolipop.jp/test/index.html';
  
     return (
@@ -109,9 +109,7 @@ var ShotDetails = React.createClass({
             </View>
             <View style={styles.mainSection}>
 
-              <View style={styles.shotDetailsRow}>
-
-              
+              <View style={styles.shotDetailsRow}>     
 
                 <View style={styles.shotCounter}>
                   <Icon name="heart-o" size={24} color="#333"/>
@@ -161,84 +159,7 @@ var ShotDetails = React.createClass({
                   onNavigationStateChange={this.onNavigationStateChange}
                 />
 
-      
 
-         
-
-      {/*  
-
-          <Modal isVisible={this.state.isModalOpen}
-                 onClose={this.closeModal}
-                 style={modalStyles}
-                 backdropType="blur"
-                 backdropBlur="dark"
-                 hideCloseButton={true}
-                 forceToFront={true}
-                 containerPointerEvents="box-none"
-                 customShowHandler={this._showModalTransition}
-                 customHideHandler={this._hideModalTransition}
-                 onPressBackdrop={this.closeModal}
-                 >
-        <View style={styles.modalInContainer}>
-            <WebView
-                  ref="webView"
-                  style={styles.webView}
-                  url={image_uri}
-                  
-                  javaScriptEnabledAndroid={false}
-                  startInLoadingState={false}
-                  bounces={false}
-                  scrollEnabled={true}
-                  automaticallyAdjustContentInsets={true}
-                />
-
-                </View>
-
-
-
-
-
-        <View style={styles.modalInContainer}>
-            <View style={styles.closeButton}>
-              <TouchableOpacity 
-                onPress={this.closeModal}>
-                <Text style={styles.closeButtonText}>Close</Text>
-              </TouchableOpacity>
-            </View>
-            <View >
-              
-              <TouchableWithoutFeedback onPress={this.onPressWebview}>
-            <WebView
-                  ref="webView"
-                  style={styles.webView}
-                  url={image_uri}
-                  
-                  javaScriptEnabledAndroid={false}
-                  startInLoadingState={false}
-                  bounces={false}
-                  scrollEnabled={true}
-                  automaticallyAdjustContentInsets={true}
-                />
-              
-                 {/*  
-                  html={htmlcontent}
- url={cur_pop_img_url['uri']}
-                  <HTMLWebView
-                  style={{width: 300}}
-                  html={htmlcontent}
-                  makeSafe={true}
-                  autoHeight={true}
-                  />
-
-              </TouchableWithoutFeedback>
-         
-            </View>
-          </View>
-*/}
-
-                 {/* <Image source={getImage.shotPopImage(this.props.shot)}
-                   style={styles.customModalImage}
-                   /> */}
           </Modal>
         </ParallaxView>
       </View>
@@ -410,7 +331,7 @@ var modalStyles  = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: '#000000',
-    opacity: 0.5,
+    opacity: 0.8,
   },
   closeButton: {
     position: 'absolute',

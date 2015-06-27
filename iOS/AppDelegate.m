@@ -39,12 +39,12 @@
    * from the root of your project directory, run
    *
    * $ react-native bundle --minify
-   * $ curl http://localhost:8081/index.ios.bundle\?dev\=0 -o main.jsbundle    IOS目录下
+   * $ curl http://localhost:8081/index.ios.bundle\?dev\=0 -o iOS/main.jsbundle    IOS目录下
    * $ curl 'http://localhost:8081/index.ios.bundle?dev=false&minify=true' -o iOS/main.jsbundle
    * see http://facebook.github.io/react-native/docs/runningondevice.html
    */
 
- // jsCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
+  //jsCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 
   RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
                                                       moduleName:@"DribbbleApp"
