@@ -26,6 +26,8 @@
 		581410F71B3511570010FC70 /* RCTWebSocket.xcodeproj in Frameworks */ = {isa = PBXBuildFile; fileRef = 581410EA1B3511280010FC70 /* RCTWebSocket.xcodeproj */; };
 		581410FE1B3511690010FC70 /* libRCTWebSocket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 581410F61B3511280010FC70 /* libRCTWebSocket.a */; };
 		58A494681B385BE1004BEDA5 /* libAIBHTMLWebView.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58A494581B385BB3004BEDA5 /* libAIBHTMLWebView.a */; };
+		58FD410C1B3E685B0076D2C9 /* libActivityView.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58FD40FC1B3E68220076D2C9 /* libActivityView.a */; };
+		58FD410E1B3EB14A0076D2C9 /* RCTBridgeModule.h in Frameworks */ = {isa = PBXBuildFile; fileRef = 58FD410D1B3EB14A0076D2C9 /* RCTBridgeModule.h */; };
 		58FFE6481B3C40E50005F15D /* isgif.png in Resources */ = {isa = PBXBuildFile; fileRef = 58FFE6461B3C40C00005F15D /* isgif.png */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		C50C38731B0915AD009B679A /* BlurView.m in Sources */ = {isa = PBXBuildFile; fileRef = C50C386B1B0915AD009B679A /* BlurView.m */; };
@@ -120,6 +122,13 @@
 			remoteGlobalIDString = E236CCDE1AD173A500D5FC85;
 			remoteInfo = AIBHTMLWebViewTests;
 		};
+		58FD40FB1B3E68220076D2C9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58FD40F71B3E68220076D2C9 /* ActivityView.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 134814201AA4EA6300B7C361;
+			remoteInfo = ActivityView;
+		};
 		78C398B81ACF4ADC00677621 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */;
@@ -188,7 +197,11 @@
 		581410F21B3511280010FC70 /* WebSocket.ios.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = WebSocket.ios.js; sourceTree = "<group>"; };
 		581410F31B3511280010FC70 /* WebSocketBase.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = WebSocketBase.js; sourceTree = "<group>"; };
 		581410F81B3511600010FC70 /* RCTWebSocket.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTWebSocket.xcodeproj; path = "node_modules/react-native/Libraries/WebSocket/RCTWebSocket.xcodeproj"; sourceTree = "<group>"; };
+		586345DF1B3EEB4C00996766 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
+		586345E01B3EEB5700996766 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		58A494521B385BB2004BEDA5 /* AIBHTMLWebView.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AIBHTMLWebView.xcodeproj; path = "node_modules/react-native-html-webview/AIBHTMLWebView.xcodeproj"; sourceTree = "<group>"; };
+		58FD40F71B3E68220076D2C9 /* ActivityView.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ActivityView.xcodeproj; path = "node_modules/react-native-activity-view/ActivityView.xcodeproj"; sourceTree = "<group>"; };
+		58FD410D1B3EB14A0076D2C9 /* RCTBridgeModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RCTBridgeModule.h; path = "node_modules/react-native/React/Base/RCTBridgeModule.h"; sourceTree = "<group>"; };
 		58FFE6461B3C40C00005F15D /* isgif.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = isgif.png; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
@@ -224,6 +237,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				58FD410E1B3EB14A0076D2C9 /* RCTBridgeModule.h in Frameworks */,
+				58FD410C1B3E685B0076D2C9 /* libActivityView.a in Frameworks */,
 				58A494681B385BE1004BEDA5 /* libAIBHTMLWebView.a in Frameworks */,
 				581410CD1B350AA70010FC70 /* libicucore.dylib in Frameworks */,
 				581410FE1B3511690010FC70 /* libRCTWebSocket.a in Frameworks */,
@@ -379,6 +394,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		58FD40F81B3E68220076D2C9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				58FD40FC1B3E68220076D2C9 /* libActivityView.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		78C398B11ACF4ADC00677621 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -390,6 +413,8 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				58FD410D1B3EB14A0076D2C9 /* RCTBridgeModule.h */,
+				58FD40F71B3E68220076D2C9 /* ActivityView.xcodeproj */,
 				58A494521B385BB2004BEDA5 /* AIBHTMLWebView.xcodeproj */,
 				581410F81B3511600010FC70 /* RCTWebSocket.xcodeproj */,
 				C5C389E91B2A115F00760C7C /* RNOverlay.xcodeproj */,
@@ -571,6 +596,10 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
+					ProductGroup = 58FD40F81B3E68220076D2C9 /* Products */;
+					ProjectRef = 58FD40F71B3E68220076D2C9 /* ActivityView.xcodeproj */;
+				},
+				{
 					ProductGroup = 58A494531B385BB2004BEDA5 /* Products */;
 					ProjectRef = 58A494521B385BB2004BEDA5 /* AIBHTMLWebView.xcodeproj */;
 				},
@@ -706,6 +735,13 @@
 			remoteRef = 58A494591B385BB3004BEDA5 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		58FD40FC1B3E68220076D2C9 /* libActivityView.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libActivityView.a;
+			remoteRef = 58FD40FB1B3E68220076D2C9 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		78C398B91ACF4ADC00677621 /* libRCTLinking.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -809,6 +845,8 @@
 			isa = PBXVariantGroup;
 			children = (
 				13B07FB21A68108700A75B9A /* Base */,
+				586345DF1B3EEB4C00996766 /* zh-Hans */,
+				586345E01B3EEB5700996766 /* ja */,
 			);
 			name = LaunchScreen.xib;
 			path = iOS;

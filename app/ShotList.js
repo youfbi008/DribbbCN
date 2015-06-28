@@ -43,10 +43,12 @@ class CustomNext extends React.Component {
   render() {
     return (
       <TouchableOpacity onPress={this.props.handleModalOpen}>
-        <Image
-          source={require('image!bars')}
-          style={{width: 24, height: 24, right: 10, bottom: 5}}
-        />
+        <View style={styles.navBarRightButtonContainer}>
+          <Image
+            source={require('image!bars')}
+            style={styles.navBarRightButton}
+          />
+        </View>
       </TouchableOpacity>
     );
   }
@@ -181,6 +183,8 @@ var ShotList = React.createClass({
                       page_size: item.size,
                       isReLoading: true,
                     });
+                    this.closeModal();
+
                     var query = this.state.filter;
 
                     {/* 考虑可以不清空再显示这种效果 或者在左上角显示*/}
@@ -249,7 +253,7 @@ var ShotList = React.createClass({
                     //     }
                     // });
                     
-                    this.closeModal();
+                    
                   }}>
                 <View style={styles.modalIcon}>
                   <Icon name={icon} size={24} color="#333"/>
@@ -280,6 +284,8 @@ var ShotList = React.createClass({
                       sort_type: sort_type,
                       isReLoading: true
                     });
+                    this.closeModal();
+
                     var query = this.state.filter;
 
   // this.refs.navBar.loading();
@@ -314,9 +320,6 @@ var ShotList = React.createClass({
                       })
                       .done();
 
-          
-
-                    this.closeModal();
                   }}>
                 <View style={styles.modalIcon}>
                   <Icon name={icon} size={24} color="#333"/>
@@ -346,9 +349,11 @@ var ShotList = React.createClass({
                     }
                     
                     var newJumpCnt = parseInt(this.props.jumpCnt) + 1;
-                    console.log(this.props.jumpCnt);
-                    console.log(newJumpCnt);
+                    // console.log(this.props.jumpCnt);
+                    // console.log(newJumpCnt);
 
+
+                    this.closeModal();
 
                     var newNav_stack = this.props.nav_stack;
                     var index = newNav_stack.indexOf(category_name);
@@ -379,8 +384,6 @@ var ShotList = React.createClass({
                     // }
                     }
                      
-
-                    this.closeModal();
                   }}>
                 <View style={styles.modalIcon}>
                   <Icon name={icon} size={24} color="#333"/>
@@ -634,7 +637,7 @@ var ShotList = React.createClass({
         <Modal isVisible={this.state.isModalOpen}
                  onClose={this.closeModal}
                  backdropType="plain"
-                 forceToFront={false}
+                 forceToFront={true}
                  containerPointerEvents="box-none"
                  customShowHandler={this._showModalTransition}
                  customHideHandler={this._hideModalTransition}
@@ -741,7 +744,7 @@ var styles = StyleSheet.create({
   },
 
   modalContainer: {
-    position: 'relative',
+ 
     height: screen.height - 200,
     flex: 1,
   },
@@ -783,11 +786,23 @@ var styles = StyleSheet.create({
   modalIconText: {
     color: '#333'
   },
+  navBarRightButtonContainer: {
+    position: 'absolute',
+    right: 0, 
+    bottom: 13,
+    width: 50,
+    paddingLeft: 10,
+    alignItems: 'center'
+  },
+  navBarRightButton: {
+    width: 24, 
+    height: 24, 
+  },
   closeButton: {
-    position: 'relative',
+    position: 'absolute',
     top: 0,
-    left: 160,
-    width:60,
+    right: 10,
+    width: 60,
     borderColor: '#000000',
     borderRadius: 2,
     borderWidth: 1,

@@ -8,7 +8,7 @@ module.exports = {
  		option_type = 'list=' + query + '&';
  	}
  	if(sort_type != "popular" && sort_type != undefined) {
- 		option_type = 'sort=' + sort_type + '&';
+ 		option_type += 'sort=' + sort_type + '&';
  	}
  	if(page_size != "" && page_size != undefined) {
  		per_page = page_size;
@@ -17,8 +17,8 @@ module.exports = {
 
  	var url_log = API_URL + '?' + option_type  + 'per_page=' + per_page + '&page=' + pageNumber;
  	url_log += '&access_token=' + access_token;
- 	console.log('get new page shots.');
- 	console.log(url_log);
+ 	// console.log('get new page shots.');
+ 	// console.log(url_log);
     return (
       url_log
     );

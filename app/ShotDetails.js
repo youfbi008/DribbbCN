@@ -3,7 +3,9 @@
 var React = require('react-native');
 var NavigationBar = require('react-native-navbar');
 
-var HTMLWebView = require('react-native-html-webview');
+// var HTMLWebView = require('react-native-html-webview');
+var ActivityView = require('react-native-activity-view');
+
 
 var {
   Image,
@@ -15,11 +17,12 @@ var {
   View,
   Component,
   WebView,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
 } = React;
 
 var Icon = require('FontAwesome'),
     getImage = require('./helpers/getImage'),
+    common = require('./helpers/common'),
     HTML = require('react-native-htmlview'),
     screen = require('Dimensions').get('window'),
     ParallaxView = require('react-native-parallax-view'),
@@ -31,6 +34,10 @@ var ShotDetails = React.createClass({
     return {
       isModalOpen: false,
       isHeaderVisible: true,
+      /*TODO*/
+      shareImageUrl: 'https://facebook.github.io/react/img/logo_og.png',
+      shareHtmlUrl: '',
+      shareTitle: 'Test',
     }
   },
 
@@ -46,12 +53,20 @@ var ShotDetails = React.createClass({
     });
   },
   onNavigationStateChange: function(navState) {
-    if(navState.url.indexOf('close.html') > -1) {
+    if(navState.url.toLowerCase().indexOf('close') > -1) {
       this.closeModal();
-      // this.setState({
-      //   isModalOpen: false
-      // });
+    } else if(navState.url.toLowerCase().indexOf('popiosmenu') > -1) {
+      // alert(2);
+      // TODO: 也可以不关闭窗口使其自身跳转加参数来判断
+      this.closeModal();
+      this.onPressShare();
     }
+  },
+  webViewRenderError: function() { 
+    // TODO：直接用dribbbcn:close这种跳转会报错，用此方法可以使其不报错，继续执行
+    // 尝试了一下 虽然是本页刷新 看不出跳转，但由于modal窗口中的东西放到了 overlay里强制保持在最前面导致挡住了弹出窗口
+    // 实在需要的话可以从修改原生出手，看是否可以让弹出窗口为最前，或者overlay不覆盖弹出窗口 !!!!
+    return;
   },
 
   handleBackButton: function() {
@@ -65,31 +80,44 @@ var ShotDetails = React.createClass({
 
     e.preventDefault();
   },
-
+  onPressShare: function() {
+    // this.setState({
+    //   isHeaderVisible: false
+    // });
+    ActivityView.show({
+      text: this.state.shareTitle,
+      url: this.state.shareHtmlUrl,
+      imageUrl: this.state.shareImageUrl
+    });
+  },
+  componentDidMount: function() {
+    var cur_pop_img_uri = getImage.shotPopImage(this.props.shot);
+    this.setState({
+      shareImageUrl: cur_pop_img_uri['uri'],
+      shareHtmlUrl: this.props.shot.html_url,
+      shareTitle: this.props.shot.title,
+    });
+  },
   render: function() {
     var shotAuthor = this.props.shot.user;
     var cur_img_url = getImage.shotNormalImage(this.props.shot);
     var cur_pop_img_uri = getImage.shotPopImage(this.props.shot);
     var hidip_url = cur_pop_img_uri['uri'];
-    if ( hidip_url == null ){
-      hidip_url = cur_img_url['uri'];
-    }
-  
+
    
    var image_uri = 'http://wa-ex.lolipop.jp/test/test.html?uri=' + hidip_url;
  // image_uri = 'http://wa-ex.lolipop.jp/test/index.html';
  
+  console.log(image_uri);
     return (
       <View style={styles.pageContainer}>
-        <Overlay 
-          isVisible={this.state.isHeaderVisible}>
-          <NavigationBar 
-            navigator={this.props.navigator} 
-            title={this.props.shot.title}
-            onPrev={this.handleBackButton}
-           />
-        </Overlay>
 
+{/*
+       <Overlay 
+          isVisible={this.state.isHeaderVisible}>
+ </Overlay>
+
+*/}
         <ParallaxView
           backgroundSource={cur_img_url}
           windowHeight={200}
@@ -102,10 +130,19 @@ var ShotDetails = React.createClass({
           >
           <View>
             <View style={styles.headerContent}>
+              <View style={styles.shareButtonContainer}>     
+                <TouchableOpacity
+                  onPress={this.onPressShare}>
+                  <View style={styles.shareButton}>
+                    <Icon name="share-square-o" size={24} color="#333"/>
+                  </View>
+                </TouchableOpacity>
+              </View>
               <Image source={getImage.authorAvatar(shotAuthor)}
                      style={styles.shotAuthorAvatar} />
               <Text style={styles.shotTitle}>{this.props.shot.title}</Text>
               <Text style={styles.shotAuthorContent}>by <Text style={styles.shotAuthor}>{shotAuthor.name}</Text></Text>
+              
             </View>
             <View style={styles.mainSection}>
 
@@ -123,18 +160,31 @@ var ShotDetails = React.createClass({
                   <Icon name="eye" size={24} color="#333"/>
                   <Text style={styles.shotCounterText}> {this.props.shot.views_count} </Text>
                 </View>
+
               </View>
+         
               <View style={styles.separator} />
-              <Text>
-                <HTML value={this.props.shot.description}
-                      stylesheet={descriptionStyles}/>
-              </Text>
-            </View>
+                <Text>
+                  <HTML value={this.props.shot.description}
+                        stylesheet={descriptionStyles}/>
+                </Text>
+              </View>
           </View>
          
-          <Modal isVisible={this.state.isModalOpen}
+        
+        </ParallaxView>
+
+          <NavigationBar 
+            navigator={this.props.navigator} 
+            title={common.getResizeTitle(this.props.shot.title, screen.width)}
+            onPrev={this.handleBackButton}
+            style={styles.headerContainer}
+            isLongTitle={true}
+           />
+       
+  <Modal isVisible={this.state.isModalOpen}
                  onClose={this.closeModal}
-                 backdropType="plain"
+                 backdropType="none"
                  forceToFront={true}
                  hideCloseButton={true}
                  style={modalStyles}
@@ -150,7 +200,7 @@ var ShotDetails = React.createClass({
                   ref="webView"
                   style={styles.webView}
                   url={image_uri}
-                  
+                  renderError={this.webViewRenderError}
                   javaScriptEnabledAndroid={true}
                   startInLoadingState={false}
                   bounces={false}
@@ -161,7 +211,6 @@ var ShotDetails = React.createClass({
 
 
           </Modal>
-        </ParallaxView>
       </View>
     );
   },
@@ -198,6 +247,13 @@ var styles = StyleSheet.create({
   pageContainer: {
     flex: 1,
   },
+  /* 由于被动态效果覆盖，所以使用绝对定位使其在最前，并且不像overlay那样强制，防止覆盖弹出菜单 */
+  headerContainer: {
+    position: 'absolute',
+    width: screen.width,
+    top: 0,
+    left: 0
+  },
 
   viewContainer: {
     marginTop: 40,
@@ -205,7 +261,8 @@ var styles = StyleSheet.create({
 
   webView: {
     height: screen.height,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'transparent',
+    // backgroundColor: 'rgba(255,255,255,0.2)',
   },
   invisibleView: {
     flex: 1,
@@ -225,6 +282,20 @@ var styles = StyleSheet.create({
     alignItems: 'center',
     width: screen.width,
     backgroundColor: '#fff'
+  },
+  shareButtonContainer: {
+    position: 'absolute',
+    width: 40,
+    right: 20,
+    // paddingBottom: 20,
+    // paddingTop: 40,
+    // alignItems: 'center',
+    // width: screen.width,
+    // backgroundColor: '#fff'
+  },
+  shareButton: {
+    width: 40,
+    alignItems: 'center'
   },
   shotTitle: {
     fontSize: 16,
@@ -316,6 +387,7 @@ var descriptionStyles  = StyleSheet.create({
 
 var modalStyles  = StyleSheet.create({
   container: {
+
     position: 'absolute',
     top: 0,
     bottom: 0,

@@ -21,6 +21,7 @@ var ShotTwoCellRow = React.createClass({
         <TouchableHighlight onPress={this.props.onSelect}>
           <View style={styles.cellContainer}>
             <Image
+              key={this.props.shot.id}
               source={getImage.shotNormalImage(this.props.shot)}
 
               style={styles.cellImage}

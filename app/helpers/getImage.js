@@ -18,7 +18,7 @@ module.exports = {
     }
     // var uri = shot.images.normal;
 
-    console.log(uri);
+    // console.log(uri);
 
     return {uri};
   },

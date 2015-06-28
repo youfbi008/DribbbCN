@@ -24,6 +24,7 @@ var ShotThreeCellRow = React.createClass({
         <TouchableHighlight onPress={this.props.onSelect}>
           <View style={styles.cellContainer}>
             <Image
+              key={this.props.shot.id}
               source={getImage.shotTeaserImage(this.props.shot)}
               style={styles.cellImage}
               accessible={true}
