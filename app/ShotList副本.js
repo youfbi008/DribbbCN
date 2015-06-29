@@ -95,17 +95,16 @@ var ShotList = React.createClass({
 
     return {
       currentAppState: AppStateIOS.currentState,
-      needGifReload: false,
-      reloadComplete: false,
+      needGifRelod: false,
       jumpCnt: this.props.jumpCnt,
       isLoading: false,
       isLoadingTail: false,
       dataSource: new ListView.DataSource({
         rowHasChanged: function(row1, row2) : bool {
 
-          var needGifReload = false;
+          var needGifRelod = false;
           if(row2["isGif"] != undefined && row2["isGif"]) {
-            needGifReload = true;
+            needGifRelod = true;
           }
           // if(needGifRelod) {
           //   var uri = row1["images"]['teaser'].toLowerCase();
@@ -117,9 +116,8 @@ var ShotList = React.createClass({
           // }
           //  var gif_reload = 
                 return (
-                  row1 !== row2 
-                  ||
-                  needGifReload
+                  row1 !== row2 ||
+                  needGifRelod
                   // ||
                   // this.state.reloading
                 // (r1["firstName"] !== r2["firstName"]) ||
@@ -245,6 +243,8 @@ var ShotList = React.createClass({
                         .then(() => console.log('rowCellsCnt:' + item.id))
                         .catch((error) => console.log(error.message))
                         .done();
+                    
+                    
                   }}>
                 <View style={styles.modalIcon}>
                   <Icon name={icon} size={24} color="#333"/>
@@ -366,7 +366,6 @@ var ShotList = React.createClass({
                       //   });
                       // } else {
 
-
                       {/*TODOnavigatorIOS的 replace功能不起作用，但navigator又会导致子页面不正常*/} 
                       this.props.navigator.push({
                         component: ShotList,
@@ -388,56 +387,48 @@ var ShotList = React.createClass({
     );
   },
   _handleAppStateChange: function(currentAppState) {
-    // this.setState({ currentAppState, });
-    if(currentAppState == 'active' && !this.state.needGifReload) {
+    this.setState({ currentAppState, });
+    if(currentAppState == 'active') {
       this.setState({
-        needGifReload: true,
-      });
+        needGifRelod: true,
+        // dataSource: this.state.dataSource({
+        //   rowHasChanged: function(row1, row2) : bool {
 
-      // this.props.navigator.popToTop();
-      // this.getShots(this.state.filter);
-      // 如果存在多哥navigator页面的话，将会多个页面均执行此操作, 因此可选择退出其他navigator，只保留当前的，并执行操作，或者完全强制刷新。
-      this.onReload();
-    } else {
-      // alert(this.state.filter);
-      // this.props.navigator.popToTop();
+        //     var needGifRelod = false;
+        //     if(this.state.needGifRelod) {
+        //       var uri = row1["images"]['teaser'].toLowerCase();
+        //       var ext = uri.substr(uri.lastIndexOf('.') + 1);
+             
+        //       if(ext == 'gif') {
+        //         needGifRelod = true;
+        //       }
+        //     }
+        //     //  var gif_reload = 
+        //           return (
+        //             row1 !== row2 ||
+        //             needGifRelod
+        //             // ||
+        //             // this.state.reloading
+        //           // (r1["firstName"] !== r2["firstName"]) ||
+        //           // (r1["lastName"] !== r2["lastName"]) ||
+        //           // (r1["age"] !== r2["age"])
+        //           );
+        //     }
+        //   // rowHasChanged: (row1, row2) => row1 !== row2,
+        //   }),
+      });
+      // alert(currentAppState);
+      this.getShots(this.state.filter, true);
     }
     // alert(currentAppState);
-  },
-  componentDidUpdate: function(prevProps, prevState) {
-    if(this.state.reloadComplete) {
-      // alert(22222222);
-      console.log('Change the isGif prop to false.');
-      var cachedResultsForQuery = resultsCache.dataForQuery[this.state.filter];
-      var gif_cnt = 0;
-      cachedResultsForQuery.map(function(item) {
-         
-          if(item['isGif'] != undefined && item['isGif']) {
-            item['isGif'] = false;
-            gif_cnt++; 
-          }
-      });
-      console.log('Set ' + gif_cnt + ' gif to false.');
-      this.setState({
-        reloadComplete: false,
-        needGifReload: false
-      });
-        
-    }
-  },
-  componentWillUpdate: function(nextProps, nextState) {
-    
   },
   componentDidMount: function() {
       AppStateIOS.addEventListener('change', this._handleAppStateChange);
     // AppStateIOS.addEventListener('memoryWarning', this._handleMemoryWarning);
   },
-  componentWillUnmount: function() {
-    
-  },
   componentWillMount: function() {
 
-   AppStateIOS.removeEventListener('change', this._handleAppStateChange);
+   // AppStateIOS.removeEventListener('change', this._handleAppStateChange);
     // AppStateIOS.removeEventListener('memoryWarning', this._handleMemoryWarning);
 
     {/* 由于在分类跳转时每次都读 可以考虑放到父组件里，子组件调用父组件属性 
@@ -458,17 +449,28 @@ var ShotList = React.createClass({
         this.getShots(this.state.filter);
       })
       .done();
-
    
   },
 
-  getShots: function(query: string) {
+  getShots: function(query: string, willRefresh: boolean) {
     this.setState({filter: query});
 
     var cachedResultsForQuery = resultsCache.dataForQuery[query];
-    if (cachedResultsForQuery) {
+    if (cachedResultsForQuery && !willRefresh) {
       if (!LOADING[query]) {
 
+        if(willRefresh) {
+          cachedResultsForQuery.map(function(item) {
+              var uri = item['images']['teaser'].toLowerCase();
+                   //   var uri = row1["images"]['teaser'].toLowerCase();
+              var ext = uri.substr(uri.lastIndexOf('.') + 1);
+             
+              if(ext == 'gif') {
+                item['isGif'] = true;
+              }
+          });
+        }
+          
         this.setState({
           dataSource: this.getDataSource(cachedResultsForQuery),
           isLoading: false
@@ -506,52 +508,9 @@ var ShotList = React.createClass({
         this.setState({
           isLoading: false,
           dataSource: this.getDataSource(responseData),
-        });        
+        });
       })
       .done();
-  },
-
-  onReload: function() {
-    var query = this.state.filter;
-
-    // if (LOADING[query]) {
-    //   return;
-    // }
-// alert(this.props.nav_stack);
-
-//     var now_query = this.props.nav_stack[this.props.nav_stack.length - 1];
-
-//     if(query != now_query)  return;
-
-
-
-//     alert(now_query);
-    this.setState({
-      isReLoading: true
-    });
-
-    var cachedResultsForQuery = resultsCache.dataForQuery[query];
-
-    if (cachedResultsForQuery) {
-        var gif_cnt = 0;
-        cachedResultsForQuery.map(function(item) {
-          var uri = item['images']['teaser'].toLowerCase();
-               //   var uri = row1["images"]['teaser'].toLowerCase();
-          var ext = uri.substr(uri.lastIndexOf('.') + 1);
-         
-          if(ext == 'gif') {
-            item['isGif'] = true;
-            gif_cnt ++;
-          }
-        });
-        console.log('Set ' + gif_cnt + ' gif to true.');
-        
-        this.setState({
-          dataSource: this.getDataSource(cachedResultsForQuery),
-          isReLoading: false,
-          reloadComplete: true,
-        });
-    }
   },
 
   hasMore: function(): boolean {

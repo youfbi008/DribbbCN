@@ -108,7 +108,7 @@ var ShotDetails = React.createClass({
    var image_uri = 'http://wa-ex.lolipop.jp/test/test.html?uri=' + hidip_url;
  // image_uri = 'http://wa-ex.lolipop.jp/test/index.html';
  
-  console.log(image_uri);
+
     return (
       <View style={styles.pageContainer}>
 
@@ -197,7 +197,6 @@ var ShotDetails = React.createClass({
                {/*  photoswipe 有很多好的关闭方法，但由于无法回调来关闭modal ，
                可考虑设置modal为无背景  */}
             <WebView
-                  ref="webView"
                   style={styles.webView}
                   url={image_uri}
                   renderError={this.webViewRenderError}

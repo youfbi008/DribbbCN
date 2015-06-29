@@ -29,13 +29,20 @@ module.exports = {
     if(uri == null || uri == "") {
         uri = shot.images.normal;
     }
-    var ext = uri.substr(uri.toLowerCase().lastIndexOf('.') + 1);
-    if(ext == 'gif') {
-      uri = shot.images.teaser;
-      if(uri == null || uri == "") {
-        uri = shot.images.normal;
+
+    if(uri == null || uri == "") {
+        uri = shot.images.teaser;
+    } else {
+      var ext = uri.toLowerCase().substr(uri.lastIndexOf('.') + 1);
+      if(ext == 'gif') {
+        uri = shot.images.teaser;
+        if(uri == null || uri == "") {
+          uri = shot.images.normal;
+        }
       }
     }
+    
+    
     return {uri};
   },
   shotPopImage: function(shot: Object): {uri: ?string} {

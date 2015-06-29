@@ -14,16 +14,22 @@ var getImage = require('./helpers/getImage'),
     screen = require('Dimensions').get('window');
 
 var ShotTwoCellRow = React.createClass({
+  getInitialState: function() {
+    return {
+      image_uri: getImage.shotNormalImage(this.props.shot),
+    };
+  },
   render: function() {
     var isGif = getImage.checkGif(this.props.shot); 
+
     return (
       <View>
         <TouchableHighlight onPress={this.props.onSelect}>
           <View style={styles.cellContainer}>
             <Image
               key={this.props.shot.id}
-              source={getImage.shotNormalImage(this.props.shot)}
-
+              source={this.state.image_uri}
+              defaultSource={{uri:'http://jimpunk.net/Loading/wp-content/uploads/loading2.gif'}}
               style={styles.cellImage}
               accessible={true}
             />
@@ -35,7 +41,26 @@ var ShotTwoCellRow = React.createClass({
         </TouchableHighlight>
       </View>
     );
-  }
+  },
+  componentWillReceiveProps: function(nextProps) {
+    if(nextProps.shot['isGif'] != undefined && nextProps.shot['isGif']) {
+        // console.log('will update this url of gif');  
+      //     var image = getImage.shotHidpiImage(this.props.shot);
+      // if(isGif) {
+        var timeInMs = Date.now();
+        var new_uri = this.state.image_uri;
+        new_uri['uri'] = new_uri['uri'] + '?t=' + timeInMs;
+        this.setState({
+          image_uri: new_uri,
+        });
+        console.log(new_uri['uri']);
+      // }
+    } else if(nextProps.shot != this.props.shot) {
+      this.setState({
+          image_uri: getImage.shotNormalImage(nextProps.shot),
+      });
+    }
+  },
 });
 
 var styles = StyleSheet.create({

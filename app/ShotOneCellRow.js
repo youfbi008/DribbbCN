@@ -13,16 +13,25 @@ var {
 var getImage = require('./helpers/getImage'),
     screen = require('Dimensions').get('window');
 
+// TODO 关于回退后gif不显示的问题， 可以通过点击后退时 促发父类的事件，来传递刷新操作，
+// 但仍不知如果从桌面回来怎么操作。
 var ShotCell = React.createClass({
+  getInitialState: function() {
+    return {
+      image_uri: getImage.shotHidpiImage(this.props.shot),
+    };
+  },
   render: function() {
     var isGif = getImage.checkGif(this.props.shot); 
+
+
     return (
       <View>
         <TouchableHighlight onPress={this.props.onSelect}>
           <View style={styles.cellContainer}>
             <Image
               key={this.props.shot.id}
-              source={getImage.shotHidpiImage(this.props.shot)}
+              source={this.state.image_uri}
               style={styles.cellImage}
               accessible={true}
             />
@@ -35,7 +44,26 @@ var ShotCell = React.createClass({
         <View style={styles.cellBorder} />
       </View>
     );
-  }
+  },
+  componentWillReceiveProps: function(nextProps) {
+    if(nextProps.shot['isGif'] != undefined && nextProps.shot['isGif']) {
+        // console.log('will update this url of gif');  
+      //     var image = getImage.shotHidpiImage(this.props.shot);
+      // if(isGif) {
+        var timeInMs = Date.now();
+        var new_uri = this.state.image_uri;
+        new_uri['uri'] = new_uri['uri'] + '?t=' + timeInMs;
+        this.setState({
+          image_uri: new_uri,
+        });
+        console.log(new_uri['uri']);
+      // }
+    } else if(nextProps.shot != this.props.shot) {
+      this.setState({
+          image_uri: getImage.shotHidpiImage(nextProps.shot),
+      });
+    }
+  },
 });
 
 var styles = StyleSheet.create({

@@ -14,7 +14,11 @@ var getImage = require('./helpers/getImage'),
     screen = require('Dimensions').get('window');
 
 var ShotThreeCellRow = React.createClass({
-
+  getInitialState: function() {
+    return {
+      image_uri: getImage.shotTeaserImage(this.props.shot),
+    };
+  },
   render: function() {
 
     var isGif = getImage.checkGif(this.props.shot); 
@@ -25,7 +29,7 @@ var ShotThreeCellRow = React.createClass({
           <View style={styles.cellContainer}>
             <Image
               key={this.props.shot.id}
-              source={getImage.shotTeaserImage(this.props.shot)}
+              source={this.state.image_uri}
               style={styles.cellImage}
               accessible={true}
             />
@@ -37,7 +41,26 @@ var ShotThreeCellRow = React.createClass({
         </TouchableHighlight>
       </View>
     );
-  }
+  },
+  componentWillReceiveProps: function(nextProps) {
+    if(nextProps.shot['isGif'] != undefined && nextProps.shot['isGif']) {
+        // console.log('will update this url of gif');  
+      //     var image = getImage.shotHidpiImage(this.props.shot);
+      // if(isGif) {
+        var timeInMs = Date.now();
+        var new_uri = this.state.image_uri;
+        new_uri['uri'] = new_uri['uri'] + '?t=' + timeInMs;
+        this.setState({
+          image_uri: new_uri,
+        });
+        console.log(new_uri['uri']);
+      // }
+    } else if(nextProps.shot != this.props.shot && nextProps.shot['isGif'] != false) {
+      this.setState({
+          image_uri: getImage.shotTeaserImage(nextProps.shot),
+      });
+    }
+  },
 });
 
 var styles = StyleSheet.create({
