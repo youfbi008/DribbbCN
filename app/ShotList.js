@@ -449,15 +449,15 @@ var ShotList = React.createClass({
       // 如果存在多哥navigator页面的话，将会多个页面均执行此操作, 因此可选择退出其他navigator，只保留当前的，并执行操作，或者完全强制刷新。
       this._handleReloadGif();
     } else {
-      for (var key in resultsCache.dataForQuery) {
-        if(key != this.state.category) {
-          resultsCache.dataForQuery[key] = undefined;
-          resultsCache.nextPageNumberForQuery[key] = 1;
-          LOADING[key] = false;
+      // for (var key in resultsCache.dataForQuery) {
+      //   if(key != this.state.category) {
+      //     resultsCache.dataForQuery[key] = undefined;
+      //     resultsCache.nextPageNumberForQuery[key] = 1;
+      //     LOADING[key] = false;
 
-          console.log('Remove the cache data of other category: ' + key);
-        }
-      }
+      //     console.log('Remove the cache data of other category: ' + key);
+      //   }
+      // }
     }
     // alert(currentAppState);
   },
@@ -490,6 +490,18 @@ var ShotList = React.createClass({
     
   },
   _handleReloadGif: function() {
+
+    /// TODO 暂时即使切到其他tab 也要清空其他分类的东西，否则内存占用过多 ，而且还会出现图片缓冲住得问题
+      for (var key in resultsCache.dataForQuery) {
+        if(key != this.state.category) {
+          resultsCache.dataForQuery[key] = undefined;
+          resultsCache.nextPageNumberForQuery[key] = 1;
+          LOADING[key] = false;
+
+          console.log('Remove the cache data of other category: ' + key);
+        }
+      }
+
     // alert(11);
       this.setState({
         needGifReload: true,

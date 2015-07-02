@@ -61,6 +61,7 @@ var ShotTwoCellRow = React.createClass({
     } else if(nextProps.shot != this.props.shot) {
       this.setState({
           image_uri: getImage.shotNormalImage(nextProps.shot),
+          key: nextProps.shot.id
       });
     }
   },

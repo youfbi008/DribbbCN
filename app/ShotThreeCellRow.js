@@ -44,12 +44,13 @@ var ShotThreeCellRow = React.createClass({
     );
   },
   componentWillReceiveProps: function(nextProps) {
-    if(nextProps.shot['isGif'] != undefined && nextProps.shot['isGif']) {
+    // var isGif = getImage.checkGif(nextProps.shot); 
+    if( (nextProps.shot['isGif'] != undefined && nextProps.shot['isGif'])) {
         // console.log('will update this url of gif');  
       //     var image = getImage.shotHidpiImage(this.props.shot);
       // if(isGif) {
         var timeInMs = Date.now();
-        var new_uri = this.state.image_uri;
+        var new_uri = getImage.shotTeaserImage(nextProps.shot);
         new_uri['uri'] = new_uri['uri'] + '?t=' + timeInMs;
         this.setState({
           image_uri: new_uri,
@@ -60,6 +61,7 @@ var ShotThreeCellRow = React.createClass({
     } else if(nextProps.shot != this.props.shot && nextProps.shot['isGif'] != false) {
       this.setState({
           image_uri: getImage.shotTeaserImage(nextProps.shot),
+          key: nextProps.shot.id
       });
     }
   },
