@@ -5,7 +5,7 @@
 'use strict';
 
 var React = require('react-native');
-
+var EventEmitter = require('EventEmitter');
 var {
   AppRegistry,
   Navigator,
@@ -27,6 +27,9 @@ var ShotList = require('./app/ShotList'),
 
 
 var USER_STORE = "user_store";
+var reloadGif_emitter = new EventEmitter();
+ 
+
 
 var DribbbleApp = React.createClass({
   getInitialState: function() {
@@ -48,13 +51,13 @@ var DribbbleApp = React.createClass({
    
     return (
       <NavigatorIOS 
-        ref="nav"
+        ref="dribbble_nav"
         style={styles.wrapper}
         navigationBarHidden={true}
         initialRoute={{
           component: ShotList,
           title: category,
-          passProps: {filter: category, title: 'Popular', nav_stack: this.state.nav_stack, handleNavStack: this.handleNavStack},
+          passProps: {filter: category, title: 'Popular', reloadGif_emitter: reloadGif_emitter, nav_stack: this.state.nav_stack, handleNavStack: this.handleNavStack},
         }}
       />
     );
@@ -132,9 +135,13 @@ var DribbbleApp = React.createClass({
             selectedIconName="dribbble"
             selected={this.state.selectedTab === 'popular'}
             onPress={() => {
-              this.setState({
-                selectedTab: 'popular',
-              });
+              if(this.state.selectedTab != 'popular') {
+
+                this.setState({
+                  selectedTab: 'popular',
+                });  
+                reloadGif_emitter.emit('reloadGif_onChangeTab'); 
+              }
             }}>
             {this._renderContent('popular')}
 

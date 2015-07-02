@@ -19,6 +19,7 @@ var ShotCell = React.createClass({
   getInitialState: function() {
     return {
       image_uri: getImage.shotHidpiImage(this.props.shot),
+      key: this.props.shot.id
     };
   },
   render: function() {
@@ -30,7 +31,7 @@ var ShotCell = React.createClass({
         <TouchableHighlight onPress={this.props.onSelect}>
           <View style={styles.cellContainer}>
             <Image
-              key={this.props.shot.id}
+              key={this.state.key}
               source={this.state.image_uri}
               style={styles.cellImage}
               accessible={true}
@@ -55,6 +56,7 @@ var ShotCell = React.createClass({
         new_uri['uri'] = new_uri['uri'] + '?t=' + timeInMs;
         this.setState({
           image_uri: new_uri,
+          key: this.state.key + '%' + timeInMs
         });
         console.log(new_uri['uri']);
       // }

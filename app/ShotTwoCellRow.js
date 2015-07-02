@@ -17,6 +17,7 @@ var ShotTwoCellRow = React.createClass({
   getInitialState: function() {
     return {
       image_uri: getImage.shotNormalImage(this.props.shot),
+      key: this.props.shot.id
     };
   },
   render: function() {
@@ -27,7 +28,7 @@ var ShotTwoCellRow = React.createClass({
         <TouchableHighlight onPress={this.props.onSelect}>
           <View style={styles.cellContainer}>
             <Image
-              key={this.props.shot.id}
+              key={this.state.key}
               source={this.state.image_uri}
               defaultSource={{uri:'http://jimpunk.net/Loading/wp-content/uploads/loading2.gif'}}
               style={styles.cellImage}
@@ -50,8 +51,10 @@ var ShotTwoCellRow = React.createClass({
         var timeInMs = Date.now();
         var new_uri = this.state.image_uri;
         new_uri['uri'] = new_uri['uri'] + '?t=' + timeInMs;
+        // new_uri['uri'] = 'https://avatars0.githubusercontent.com/u/1822459';
         this.setState({
           image_uri: new_uri,
+          key: this.state.key + '%' + timeInMs
         });
         console.log(new_uri['uri']);
       // }
