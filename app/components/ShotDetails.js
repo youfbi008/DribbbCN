@@ -29,7 +29,9 @@ var Icon = require('FontAwesome'),
     Modal = require('react-native-modal'),
     Overlay = require('react-native-overlay');
 
-var rdir = "";
+var local_web_dir = "";
+var local_html = "";
+var now_big_img_url = "";
 
 var ShotDetails = React.createClass({
   getInitialState: function() {
@@ -95,14 +97,15 @@ var ShotDetails = React.createClass({
   },
   componentWillMount: function() {
 
-    RNFS.readDir('/web/js', RNFS.MainBundle)
-        .then((result) => {
-          //rdir = result[0].path;
-          rdir = result[0].path;
-          rdir = rdir.substring(0, rdir.indexOf('/js/'));
-          console.log('GOT RESULT:', rdir);
-          return result[0].path;
-        });
+    if(local_web_dir == "") {
+      RNFS.readDir('/web/js', RNFS.MainBundle)
+          .then((result) => {
+            local_web_dir = result[0].path;
+            local_web_dir = local_web_dir.substring(0, local_web_dir.indexOf('/js/'));
+            local_web_dir = 'file://' + local_web_dir + '/';
+            return;
+          });
+    }
   },
   componentDidMount: function() {
     var cur_pop_img_uri = getImage.shotPopImage(this.props.shot);
@@ -123,11 +126,10 @@ var ShotDetails = React.createClass({
  // image_uri = 'http://wa-ex.lolipop.jp/test/index.html';
  //   var image_uri = 'resizeImage.html';
 
-    var big_image_url = hidip_url;
-
-    console.log('Final dir : ' + rdir);
-    rdir = 'file://' + rdir + '/';
-    var local_html = '<!DOCTYPE html> <html > <head> <meta charset="UTF-8"> <title>test page</title> <link rel="stylesheet prefetch" href="' + rdir + 'css/photoswipe.css"> <link rel="stylesheet prefetch" href="' + rdir + 'css/default-skin/default-skin.css"> </head> <body style="background-color: black;"> <div style="text-align:center" id="load_div"> <span style="font-size:xx-large;color:red;"> Loading... 请等待！！！ </span> </div> <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true"> <div class="pswp__bg"></div> <div class="pswp__scroll-wrap"> <div class="pswp__container"> <div class="pswp__item"></div> <div class="pswp__item"></div> <div class="pswp__item"></div> </div> <div class="pswp__ui pswp__ui--hidden"> <div class="pswp__top-bar"> <div class="pswp__counter"></div> <button class="pswp__button pswp__button--close" title="Close (Esc)"></button> <button class="pswp__button pswp__button--share" title="Share"></button> <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button> <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button> <div class="pswp__preloader"> <div class="pswp__preloader__icn"> <div class="pswp__preloader__cut"> <div class="pswp__preloader__donut"></div> </div> </div> </div> </div> <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"> <div class="pswp__share-tooltip"></div> </div> <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"> </button> <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"> </button> <div class="pswp__caption"> <div class="pswp__caption__center"></div> </div> </div> </div> </div> <script src="' + rdir + 'js/photoswipe.min.js"></script> <script src="' + rdir + 'js/photoswipe-ui-default.js"></script> <script> var uri = "' + big_image_url + '"; var openPhotoSwipe = function() {var pswpElement = document.querySelectorAll(".pswp")[0]; var items = [{src: uri, w: 800, h: 600 }, ]; var popIosMenu = "dribbbcn:popIosMenu"; var options = {history: false, focus: false, showAnimationDuration: 0, hideAnimationDuration: 0, tapToClose: true, shareButtons: [{id:"shareAndSave", label:"默认保存分享", url:popIosMenu}, ], }; var gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, items, options); gallery.init(); gallery.listen("close", function() {document.location = "dribbbcn:close"; }); }; openPhotoSwipe(); document.getElementById("load_div").style.display="none"; </script> </body> </html>';
+    if(local_web_dir != "" && now_big_img_url != hidip_url) {
+      now_big_img_url = hidip_url;
+      local_html = '<!DOCTYPE html> <html > <head> <meta charset="UTF-8"> <title>test page</title> <link rel="stylesheet prefetch" href="' + local_web_dir + 'css/photoswipe.css"> <link rel="stylesheet prefetch" href="' + local_web_dir + 'css/default-skin/default-skin.css"> </head> <body style="background-color: black;"> <div style="text-align:center" id="load_div"> <span style="font-size:xx-large;color:red;"> Loading... 请等待！！！ </span> </div> <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true"> <div class="pswp__bg"></div> <div class="pswp__scroll-wrap"> <div class="pswp__container"> <div class="pswp__item"></div> <div class="pswp__item"></div> <div class="pswp__item"></div> </div> <div class="pswp__ui pswp__ui--hidden"> <div class="pswp__top-bar"> <div class="pswp__counter"></div> <button class="pswp__button pswp__button--close" title="Close (Esc)"></button> <button class="pswp__button pswp__button--share" title="Share"></button> <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button> <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button> <div class="pswp__preloader"> <div class="pswp__preloader__icn"> <div class="pswp__preloader__cut"> <div class="pswp__preloader__donut"></div> </div> </div> </div> </div> <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"> <div class="pswp__share-tooltip"></div> </div> <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"> </button> <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"> </button> <div class="pswp__caption"> <div class="pswp__caption__center"></div> </div> </div> </div> </div> <script src="' + local_web_dir + 'js/photoswipe.min.js"></script> <script src="' + local_web_dir + 'js/photoswipe-ui-default.js"></script> <script> var uri = "' + now_big_img_url + '"; var openPhotoSwipe = function() {var pswpElement = document.querySelectorAll(".pswp")[0]; var items = [{src: uri, w: 800, h: 600 }, ]; var popIosMenu = "dribbbcn:popIosMenu"; var options = {history: false, focus: false, showAnimationDuration: 0, hideAnimationDuration: 0, tapToClose: true, shareButtons: [{id:"shareAndSave", label:"默认保存分享", url:popIosMenu}, ], }; var gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, items, options); gallery.init(); gallery.listen("close", function() {document.location = "dribbbcn:close"; }); }; openPhotoSwipe(); document.getElementById("load_div").style.display="none"; </script> </body> </html>';
+    }
 
     return (
       <View style={styles.pageContainer}>

@@ -441,6 +441,8 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				581410E71B3511280010FC70 /* WebSocket */,
+				581410CC1B350AA70010FC70 /* libicucore.dylib */,
 				587A1F711B467DA000712682 /* RNFS.xcodeproj */,
 				58FD410D1B3EB14A0076D2C9 /* RCTBridgeModule.h */,
 				58FD40F71B3E68220076D2C9 /* ActivityView.xcodeproj */,
@@ -473,8 +475,6 @@
 			isa = PBXGroup;
 			children = (
 				58FAAF361B4626DB006A4DF4 /* Resources */,
-				581410E71B3511280010FC70 /* WebSocket */,
-				581410CC1B350AA70010FC70 /* libicucore.dylib */,
 				C544F2901B29F55300EFFA3D /* Fonts */,
 				13B07FAE1A68108700A75B9A /* DribbbleApp */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
