@@ -10,19 +10,21 @@ var {
   View
 } = React;
 
-var getImage = require('./helpers/getImage'),
+var getImage = require('../helpers/getImage'),
     screen = require('Dimensions').get('window');
 
-var ShotThreeCellRow = React.createClass({
+// TODO 关于回退后gif不显示的问题， 可以通过点击后退时 促发父类的事件，来传递刷新操作，
+// 但仍不知如果从桌面回来怎么操作。
+var ShotOneCellRow = React.createClass({
   getInitialState: function() {
     return {
-      image_uri: getImage.shotTeaserImage(this.props.shot),
+      image_uri: getImage.shotHidpiImage(this.props.shot),
       key: this.props.shot.id
     };
   },
   render: function() {
-
     var isGif = getImage.checkGif(this.props.shot); 
+
 
     return (
       <View>
@@ -40,17 +42,17 @@ var ShotThreeCellRow = React.createClass({
             />}
           </View>
         </TouchableHighlight>
+        <View style={styles.cellBorder} />
       </View>
     );
   },
   componentWillReceiveProps: function(nextProps) {
-    // var isGif = getImage.checkGif(nextProps.shot); 
-    if( (nextProps.shot['isGif'] != undefined && nextProps.shot['isGif'])) {
+    if(nextProps.shot['isGif'] != undefined && nextProps.shot['isGif']) {
         // console.log('will update this url of gif');  
       //     var image = getImage.shotHidpiImage(this.props.shot);
       // if(isGif) {
         var timeInMs = Date.now();
-        var new_uri = getImage.shotTeaserImage(nextProps.shot);
+        var new_uri = this.state.image_uri;
         new_uri['uri'] = new_uri['uri'] + '?t=' + timeInMs;
         this.setState({
           image_uri: new_uri,
@@ -58,9 +60,9 @@ var ShotThreeCellRow = React.createClass({
         });
         console.log(new_uri['uri']);
       // }
-    } else if(nextProps.shot != this.props.shot && nextProps.shot['isGif'] != false) {
+    } else if(nextProps.shot != this.props.shot) {
       this.setState({
-          image_uri: getImage.shotTeaserImage(nextProps.shot),
+          image_uri: getImage.shotHidpiImage(nextProps.shot),
           key: nextProps.shot.id
       });
     }
@@ -72,8 +74,8 @@ var styles = StyleSheet.create({
   cellContainer: {
     backgroundColor: 'white',
     flexDirection: 'column',
-    height: screen.width / 3,
-    width: screen.width / 3 ,
+    height: screen.width,
+    width: screen.width,
     padding: 5,
   },
   cellImage: {
@@ -87,15 +89,15 @@ var styles = StyleSheet.create({
     marginLeft: 4,
   },
   isGif: {
-    width: 20, 
-    height: 15,
+    width: 40, 
+    height: 30,
     backgroundColor: 'transparent',
     position: 'absolute',
-    right: 6, 
-    top: 6,
+    right: 12, 
+    top: 10,
     opacity: 0.9,
     resizeMode: "contain",
   }
 });
 
-module.exports = ShotThreeCellRow;
+module.exports = ShotOneCellRow;

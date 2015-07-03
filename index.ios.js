@@ -21,29 +21,21 @@ var {
 
 
 var ShotList = require('./app/ShotList'),
-    RewardList = require('./app/RewardList'),
+    Home_ShotList = require('./app/Home_ShotList'),
     Icon = require('FontAwesome'),
     screen = require('Dimensions').get('window');
 
 
 var USER_STORE = "user_store";
 var reloadGif_emitter = new EventEmitter();
- 
+var reloadGif_emitter_local = new EventEmitter();
 
 
 var DribbbleApp = React.createClass({
   getInitialState: function() {
     return {
-      nav_stack: ['popular'],
-      selectedTab: 'popular',
+      selectedTab: 'dribbble',
     };
-  },
-    
-
-  handleNavStack: function(newNav_stack: array) {
-    this.setState({
-      nav_stack: newNav_stack,
-    });
   },
   
   _renderContent: function(category: string) {
@@ -57,30 +49,40 @@ var DribbbleApp = React.createClass({
         initialRoute={{
           component: ShotList,
           title: category,
-          passProps: {filter: category, title: 'Popular', reloadGif_emitter: reloadGif_emitter, nav_stack: this.state.nav_stack, handleNavStack: this.handleNavStack},
+          passProps: {filter: category, title: 'Popular', reloadGif_emitter: reloadGif_emitter},
+        }}
+      />
+    );
+  },
+
+  _renderHomeContent: function() {
+
+    
+    return (
+      <NavigatorIOS 
+        ref="local_nav"
+        style={styles.wrapper}
+        navigationBarHidden={true}
+        initialRoute={{
+          component: Home_ShotList,
+          title: '本土',
+          passProps: {filter: 'popular', title: 'Popular', reloadGif_emitter: reloadGif_emitter_local},
         }}
       />
     );
   },
 
   _renderRewardContent: function() {
-
     
     return (
       <NavigatorIOS 
-        ref="nav_reward"
+        ref="local_nav"
         style={styles.wrapper}
+        navigationBarHidden={true}
         initialRoute={{
-          component: RewardList,
-          title: '悬赏',
-          passProps: {},
-          rightButtonIcon: require('image!bars'),
-          onRightButtonPress: () => {
-
-            this.setState({
-              isModalOpen: !this.state.isModalOpen,
-            });
-          }
+          component: Home_ShotList,
+          title: '本土',
+          passProps: {filter: 'popular', title: 'Popular', reloadGif_emitter: reloadGif_emitter_local},
         }}
       />
     );
@@ -130,15 +132,15 @@ var DribbbleApp = React.createClass({
       <View style={styles.tabContainer}>
         <TabBarIOS>
           <Icon.TabBarItem
-            title="Popular"
+            title="dribbble"
             iconName="dribbble"
             selectedIconName="dribbble"
-            selected={this.state.selectedTab === 'popular'}
+            selected={this.state.selectedTab === 'dribbble'}
             onPress={() => {
-              if(this.state.selectedTab != 'popular') {
+              if(this.state.selectedTab != 'dribbble') {
 
                 this.setState({
-                  selectedTab: 'popular',
+                  selectedTab: 'dribbble',
                 });  
                 reloadGif_emitter.emit('reloadGif_onChangeTab'); 
               }
@@ -146,27 +148,31 @@ var DribbbleApp = React.createClass({
             {this._renderContent('popular')}
 
           </Icon.TabBarItem>
-        {/*  <Icon.TabBarItem
-            title="Debuts"
-            iconName="trophy"
-            selectedIconName="trophy"
-            selected={this.state.selectedTab === 'debuts'}
-            onPress={() => {
-              this.setState({
-                selectedTab: 'debuts',
-              });
-            }}>
-            {this._renderContent('debuts')}
-          </Icon.TabBarItem>
-          */}
+
           <Icon.TabBarItem
             title="本土"
             iconName="home"
             selectedIconName="home"
-            selected={this.state.selectedTab === '本土'}
+            selected={this.state.selectedTab === 'home'}
+            onPress={() => {
+              if(this.state.selectedTab != 'home') {
+
+                  this.setState({
+                      selectedTab: 'home',
+                  });
+                  reloadGif_emitter_local.emit('reloadGif_onChangeTab');
+              }
+            }}>
+            {this._renderHomeContent()}
+          </Icon.TabBarItem>
+          <Icon.TabBarItem
+            title="悬赏"
+            iconName="trophy"
+            selectedIconName="trophy"
+            selected={this.state.selectedTab === 'reward'}
             onPress={() => {
               this.setState({
-                selectedTab: '本土',
+                selectedTab: 'reward',
               });
             }}>
             {this._renderRewardContent()}

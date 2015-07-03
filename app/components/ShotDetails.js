@@ -5,7 +5,7 @@ var NavigationBar = require('react-native-navbar');
 
 // var HTMLWebView = require('react-native-html-webview');
 var ActivityView = require('react-native-activity-view');
-
+var RNFS = require('react-native-fs');
 
 var {
   Image,
@@ -21,13 +21,15 @@ var {
 } = React;
 
 var Icon = require('FontAwesome'),
-    getImage = require('./helpers/getImage'),
-    common = require('./helpers/common'),
+    getImage = require('../helpers/getImage'),
+    common = require('../helpers/common'),
     HTML = require('react-native-htmlview'),
     screen = require('Dimensions').get('window'),
     ParallaxView = require('react-native-parallax-view'),
     Modal = require('react-native-modal'),
     Overlay = require('react-native-overlay');
+
+var rdir = "";
 
 var ShotDetails = React.createClass({
   getInitialState: function() {
@@ -42,6 +44,7 @@ var ShotDetails = React.createClass({
   },
 
   openModal: function() {
+
     this.setState({
       isModalOpen: true
     });
@@ -90,6 +93,17 @@ var ShotDetails = React.createClass({
       imageUrl: this.state.shareImageUrl
     });
   },
+  componentWillMount: function() {
+
+    RNFS.readDir('/web/js', RNFS.MainBundle)
+        .then((result) => {
+          //rdir = result[0].path;
+          rdir = result[0].path;
+          rdir = rdir.substring(0, rdir.indexOf('/js/'));
+          console.log('GOT RESULT:', rdir);
+          return result[0].path;
+        });
+  },
   componentDidMount: function() {
     var cur_pop_img_uri = getImage.shotPopImage(this.props.shot);
     this.setState({
@@ -105,9 +119,15 @@ var ShotDetails = React.createClass({
     var hidip_url = cur_pop_img_uri['uri'];
 
    
-   var image_uri = 'http://wa-ex.lolipop.jp/test/test.html?uri=' + hidip_url;
+   //var image_uri = 'http://wa-ex.lolipop.jp/test/test.html?uri=' + hidip_url;
  // image_uri = 'http://wa-ex.lolipop.jp/test/index.html';
- 
+ //   var image_uri = 'resizeImage.html';
+
+    var big_image_url = hidip_url;
+
+    console.log('Final dir : ' + rdir);
+    rdir = 'file://' + rdir + '/';
+    var local_html = '<!DOCTYPE html> <html > <head> <meta charset="UTF-8"> <title>test page</title> <link rel="stylesheet prefetch" href="' + rdir + 'css/photoswipe.css"> <link rel="stylesheet prefetch" href="' + rdir + 'css/default-skin/default-skin.css"> </head> <body style="background-color: black;"> <div style="text-align:center" id="load_div"> <span style="font-size:xx-large;color:red;"> Loading... 请等待！！！ </span> </div> <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true"> <div class="pswp__bg"></div> <div class="pswp__scroll-wrap"> <div class="pswp__container"> <div class="pswp__item"></div> <div class="pswp__item"></div> <div class="pswp__item"></div> </div> <div class="pswp__ui pswp__ui--hidden"> <div class="pswp__top-bar"> <div class="pswp__counter"></div> <button class="pswp__button pswp__button--close" title="Close (Esc)"></button> <button class="pswp__button pswp__button--share" title="Share"></button> <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button> <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button> <div class="pswp__preloader"> <div class="pswp__preloader__icn"> <div class="pswp__preloader__cut"> <div class="pswp__preloader__donut"></div> </div> </div> </div> </div> <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"> <div class="pswp__share-tooltip"></div> </div> <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"> </button> <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"> </button> <div class="pswp__caption"> <div class="pswp__caption__center"></div> </div> </div> </div> </div> <script src="' + rdir + 'js/photoswipe.min.js"></script> <script src="' + rdir + 'js/photoswipe-ui-default.js"></script> <script> var uri = "' + big_image_url + '"; var openPhotoSwipe = function() {var pswpElement = document.querySelectorAll(".pswp")[0]; var items = [{src: uri, w: 800, h: 600 }, ]; var popIosMenu = "dribbbcn:popIosMenu"; var options = {history: false, focus: false, showAnimationDuration: 0, hideAnimationDuration: 0, tapToClose: true, shareButtons: [{id:"shareAndSave", label:"默认保存分享", url:popIosMenu}, ], }; var gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, items, options); gallery.init(); gallery.listen("close", function() {document.location = "dribbbcn:close"; }); }; openPhotoSwipe(); document.getElementById("load_div").style.display="none"; </script> </body> </html>';
 
     return (
       <View style={styles.pageContainer}>
@@ -195,16 +215,23 @@ var ShotDetails = React.createClass({
 
 
                {/*  photoswipe 有很多好的关闭方法，但由于无法回调来关闭modal ，
-               可考虑设置modal为无背景  */}
+               可考虑设置modal为无背景    html={local_html}     html={"<script src='index.js'></script>"}
+
+               TODO：！！
+                https://github.com/facebook/react-native/issues/1442  不管怎样 baseurl都不好使 没理解到底怎么用
+                实在没办法 所以现在用取的本地绝对路径 来设置js路径来解决 以后要改
+                baseURL={"/asdasd"}   url={"index2.html"}         url={"resizeImage.html?uri=2"}
+                baseURL={"/web"}
+                */}
             <WebView
                   style={styles.webView}
-                  url={image_uri}
+                  html={local_html}
                   renderError={this.webViewRenderError}
                   javaScriptEnabledAndroid={true}
                   startInLoadingState={false}
                   bounces={false}
                   scrollEnabled={true}
-                  automaticallyAdjustContentInsets={true}
+                  automaticallyAdjustContentInsets={false}
                   onNavigationStateChange={this.onNavigationStateChange}
                 />
 

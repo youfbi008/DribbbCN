@@ -20,10 +20,10 @@ var {
 
 var api = require('./helpers/api');
 
-var ShotOneCellRow = require('./ShotOneCellRow');
-var ShotTwoCellRow = require('./ShotTwoCellRow');
-var ShotThreeCellRow = require('./ShotThreeCellRow');
-var ShotDetails = require('./ShotDetails');
+var ShotOneCellRow = require('./components/ShotOneCellRow');
+var ShotTwoCellRow = require('./components/ShotTwoCellRow');
+var ShotThreeCellRow = require('./components/ShotThreeCellRow');
+var ShotDetails = require('./components/ShotDetails');
 var Icon = require('FontAwesome'),
     screen = require('Dimensions').get('window');
 

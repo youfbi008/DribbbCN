@@ -10,21 +10,18 @@ var {
   View
 } = React;
 
-var getImage = require('./helpers/getImage'),
+var getImage = require('../helpers/getImage'),
     screen = require('Dimensions').get('window');
 
-// TODO 关于回退后gif不显示的问题， 可以通过点击后退时 促发父类的事件，来传递刷新操作，
-// 但仍不知如果从桌面回来怎么操作。
-var ShotCell = React.createClass({
+var ShotTwoCellRow = React.createClass({
   getInitialState: function() {
     return {
-      image_uri: getImage.shotHidpiImage(this.props.shot),
+      image_uri: getImage.shotNormalImage(this.props.shot),
       key: this.props.shot.id
     };
   },
   render: function() {
     var isGif = getImage.checkGif(this.props.shot); 
-
 
     return (
       <View>
@@ -33,6 +30,7 @@ var ShotCell = React.createClass({
             <Image
               key={this.state.key}
               source={this.state.image_uri}
+              defaultSource={{uri:'http://jimpunk.net/Loading/wp-content/uploads/loading2.gif'}}
               style={styles.cellImage}
               accessible={true}
             />
@@ -42,7 +40,6 @@ var ShotCell = React.createClass({
             />}
           </View>
         </TouchableHighlight>
-        <View style={styles.cellBorder} />
       </View>
     );
   },
@@ -54,6 +51,7 @@ var ShotCell = React.createClass({
         var timeInMs = Date.now();
         var new_uri = this.state.image_uri;
         new_uri['uri'] = new_uri['uri'] + '?t=' + timeInMs;
+        // new_uri['uri'] = 'https://avatars0.githubusercontent.com/u/1822459';
         this.setState({
           image_uri: new_uri,
           key: this.state.key + '%' + timeInMs
@@ -62,7 +60,7 @@ var ShotCell = React.createClass({
       // }
     } else if(nextProps.shot != this.props.shot) {
       this.setState({
-          image_uri: getImage.shotHidpiImage(nextProps.shot),
+          image_uri: getImage.shotNormalImage(nextProps.shot),
           key: nextProps.shot.id
       });
     }
@@ -70,13 +68,12 @@ var ShotCell = React.createClass({
 });
 
 var styles = StyleSheet.create({
-
   cellContainer: {
     backgroundColor: 'white',
     flexDirection: 'column',
-    height: screen.width,
-    width: screen.width,
-    padding: 5,
+    height: screen.width / 2,
+    width: screen.width / 2,
+    padding: 8,
   },
   cellImage: {
     backgroundColor: 'transparent',
@@ -89,15 +86,15 @@ var styles = StyleSheet.create({
     marginLeft: 4,
   },
   isGif: {
-    width: 40, 
-    height: 30,
+    width: 23, 
+    height: 20,
     backgroundColor: 'transparent',
     position: 'absolute',
-    right: 12, 
-    top: 10,
+    right: 10, 
+    top: 8,
     opacity: 0.9,
     resizeMode: "contain",
   }
 });
 
-module.exports = ShotCell;
+module.exports = ShotTwoCellRow;

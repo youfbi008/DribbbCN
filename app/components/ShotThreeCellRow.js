@@ -10,17 +10,18 @@ var {
   View
 } = React;
 
-var getImage = require('./helpers/getImage'),
+var getImage = require('../helpers/getImage'),
     screen = require('Dimensions').get('window');
 
-var ShotTwoCellRow = React.createClass({
+var ShotThreeCellRow = React.createClass({
   getInitialState: function() {
     return {
-      image_uri: getImage.shotNormalImage(this.props.shot),
+      image_uri: getImage.shotTeaserImage(this.props.shot),
       key: this.props.shot.id
     };
   },
   render: function() {
+
     var isGif = getImage.checkGif(this.props.shot); 
 
     return (
@@ -30,7 +31,6 @@ var ShotTwoCellRow = React.createClass({
             <Image
               key={this.state.key}
               source={this.state.image_uri}
-              defaultSource={{uri:'http://jimpunk.net/Loading/wp-content/uploads/loading2.gif'}}
               style={styles.cellImage}
               accessible={true}
             />
@@ -44,23 +44,23 @@ var ShotTwoCellRow = React.createClass({
     );
   },
   componentWillReceiveProps: function(nextProps) {
-    if(nextProps.shot['isGif'] != undefined && nextProps.shot['isGif']) {
+    // var isGif = getImage.checkGif(nextProps.shot); 
+    if( (nextProps.shot['isGif'] != undefined && nextProps.shot['isGif'])) {
         // console.log('will update this url of gif');  
       //     var image = getImage.shotHidpiImage(this.props.shot);
       // if(isGif) {
         var timeInMs = Date.now();
-        var new_uri = this.state.image_uri;
+        var new_uri = getImage.shotTeaserImage(nextProps.shot);
         new_uri['uri'] = new_uri['uri'] + '?t=' + timeInMs;
-        // new_uri['uri'] = 'https://avatars0.githubusercontent.com/u/1822459';
         this.setState({
           image_uri: new_uri,
           key: this.state.key + '%' + timeInMs
         });
         console.log(new_uri['uri']);
       // }
-    } else if(nextProps.shot != this.props.shot) {
+    } else if(nextProps.shot != this.props.shot && nextProps.shot['isGif'] != false) {
       this.setState({
-          image_uri: getImage.shotNormalImage(nextProps.shot),
+          image_uri: getImage.shotTeaserImage(nextProps.shot),
           key: nextProps.shot.id
       });
     }
@@ -68,12 +68,13 @@ var ShotTwoCellRow = React.createClass({
 });
 
 var styles = StyleSheet.create({
+
   cellContainer: {
     backgroundColor: 'white',
     flexDirection: 'column',
-    height: screen.width / 2,
-    width: screen.width / 2,
-    padding: 8,
+    height: screen.width / 3,
+    width: screen.width / 3 ,
+    padding: 5,
   },
   cellImage: {
     backgroundColor: 'transparent',
@@ -86,15 +87,15 @@ var styles = StyleSheet.create({
     marginLeft: 4,
   },
   isGif: {
-    width: 23, 
-    height: 20,
+    width: 20, 
+    height: 15,
     backgroundColor: 'transparent',
     position: 'absolute',
-    right: 10, 
-    top: 8,
+    right: 6, 
+    top: 6,
     opacity: 0.9,
     resizeMode: "contain",
   }
 });
 
-module.exports = ShotTwoCellRow;
+module.exports = ShotThreeCellRow;

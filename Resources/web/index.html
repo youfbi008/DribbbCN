@@ -1,0 +1,51 @@
+<html>
+<script type="text/javascript">
+    function getQueryVariable(variable) {
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i=0;i<vars.length;i++) {
+            var pair = vars[i].split("=");
+            if (pair[0] == variable) {
+                return pair[1];
+            }
+        }
+        return "";
+    }
+    
+    var width = '300px';
+    var height = '500px';
+    if(getQueryVariable('width') != "") {
+        width = getQueryVariable('width');
+    }
+    if(getQueryVariable('height') != "") {
+        height = getQueryVariable('height');
+    }
+
+
+</script>
+<body  style="background-color: black;">
+    <div id="mycontainer" style="border:1px black solid;">
+     <!-- set desired position and size to that div -->
+        <canvas id="mycanvas" style="width: 200px; height:350px"></canvas>
+    </div>
+ <script src="index.js"></script>
+    <script src="img-touch-canvas.js"></script>
+    <script>
+           document.getElementById("mycontainer").style.width = width;
+    document.getElementById("mycontainer").style.height = height;
+        document.getElementById("mycanvas").style.width = width;
+    document.getElementById("mycanvas").style.height = height;
+     var uri = "https://d13yacurqjgara.cloudfront.net/users/288987/screenshots/2119533/savanna-final_1x.jpg";
+     if(getQueryVariable('uri') != "") {
+        uri = getQueryVariable('uri');
+    }
+    
+        // var uri = getQueryVariable("uri");
+        var gesturableImg = new ImgTouchCanvas({
+            canvas: document.getElementById('mycanvas'),
+            path: uri,
+            desktop: true
+        });
+    </script>
+</body>
+</html>
