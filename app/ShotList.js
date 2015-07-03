@@ -19,6 +19,7 @@ var {
 } = React;
 
 var api = require('./helpers/api');
+var common = require('./helpers/common');
 
 var ShotOneCellRow = require('./components/ShotOneCellRow');
 var ShotTwoCellRow = require('./components/ShotTwoCellRow');
@@ -352,80 +353,8 @@ var ShotList = React.createClass({
                     this.closeModal();
 
                     var query = category_name;
-
+                    //this.reloadDataSource(query);
                     this.getShots(query, true);
-
-
-                    // var cachedResultsForQuery = resultsCache.dataForQuery[query];
-                    // if (cachedResultsForQuery) {
-                    //   // if (!LOADING[query]) {
-
-                    //       this.setState({
-                    //         isReloading: false,
-                    //         dataSource: this.getDataSource(cachedResultsForQuery),
-                    //       });
-                    // } else {
-
-                    //   fetch(api.getShotsByType(query, 1, this.state.page_size, this.state.sort_type))
-                    //     .then((response) => response.json())
-                    //     .catch((error) => {
-                    //       LOADING[query] = false;
-                    //       resultsCache.dataForQuery[query] = undefined;
-
-                    //       this.setState({
-                    //         dataSource: this.getDataSource([]),
-                    //         isReloading: false,
-                    //       });
-                    //     })
-                    //     .then((responseData) => {
-                    //       LOADING[query] = false;
-                    //       resultsCache.dataForQuery[query] = responseData;
-                    //       resultsCache.nextPageNumberForQuery[query] = 2;
-
-                    //       this.setState({
-                    //         isReloading: false,
-                    //         dataSource: this.getDataSource(responseData),
-                    //       });
-                    //     })
-                    //     .done();
-                    // }
-                    // this.getShots(query, true);
-
-             
-                    
-                    // var newJumpCnt = parseInt(this.props.jumpCnt) + 1;
-                   
-                    // this.closeModal();
-
-                    // var newNav_stack = this.props.nav_stack;
-                    // var index = newNav_stack.indexOf(category_name);
-                    // if(index > -1) {
-                    //   var pop_num = newNav_stack.length - 1 - index;
-                    //   this.props.navigator.popN(pop_num);
-                    //   for (var i = pop_num; i > 0; i--) {
-                    //     newNav_stack.pop();
-                    //   };
-                    //   this.props.handleNavStack(newNav_stack);
-                    // } else {
-                    //   newNav_stack.push(category_name);
-                    //   console.log(newNav_stack);
-                    //   // if(this.props.jumpCnt % 2 == 0) {
-                    //   //   this.props.navigator.replacePreviousAndPop({
-                    //   //     component: ShotList,
-                    //   //     passProps: {category: category_name, title: item.title, jumpCnt: newJumpCnt},
-                      
-                    //   //   });
-                    //   // } else {
-
-
-                    //   // {/*TODOnavigatorIOS的 replace功能不起作用，但navigator又会导致子页面不正常*/} 
-                    //   // this.props.navigator.push({
-                    //   //   component: ShotList,
-                    //   //   passProps: {category: category_name, title: title, jumpCnt: newJumpCnt, nav_stack: newNav_stack,handleNavStack: this.props.handleNavStack},
-                    
-                    //   // });
-                    // // }
-                    // }
                   }}>
                 <View style={styles.modalIcon}>
                   <Icon name={icon} size={24} color="#333"/>
@@ -491,6 +420,10 @@ var ShotList = React.createClass({
   },
   _handleReloadGif: function() {
 
+    this.setState({
+      isReloading: true,
+      needGifReload: true,
+    });
     /// TODO 暂时即使切到其他tab 也要清空其他分类的东西，否则内存占用过多 ，而且还会出现图片缓冲住得问题
       for (var key in resultsCache.dataForQuery) {
         if(key != this.state.category) {
@@ -502,19 +435,11 @@ var ShotList = React.createClass({
         }
       }
 
-    // alert(11);
-      this.setState({
-        needGifReload: true,
-      });
+
 
       // 如果存在多哥navigator页面的话，将会多个页面均执行此操作, 因此可选择退出其他navigator，只保留当前的，并执行操作，或者完全强制刷新。
-      var query = this.state.category;
 
-      this.setState({
-        isReloading: true
-      });
-
-      var cachedResultsForQuery = resultsCache.dataForQuery[query];
+      var cachedResultsForQuery = resultsCache.dataForQuery[this.state.category];
 
       if (cachedResultsForQuery) {
         // TODO 如果能仿造一般的页面切换 强制刷新数据也许可以更好解决。
@@ -535,11 +460,16 @@ var ShotList = React.createClass({
             }
           });
           console.log('Set ' + gif_cnt + ' gif to true.');
-          
-          this.setState({
-            dataSource: this.getDataSource(cachedResultsForQuery),
-            isReloading: false,
-            reloadComplete: true,
+
+        this.setState({
+          dataSource: this.getDataSource(cachedResultsForQuery),
+          reloadComplete: true,
+        });
+
+          common.waitReload().then(() => {
+            this.setState({
+              isReloading: false,
+            });
           });
       }
   },
@@ -578,28 +508,35 @@ var ShotList = React.createClass({
    
   },
 
+  //waitReload: function() {
+  //  return new Promise(function(resolve, reject) {
+  //    setTimeout(resolve, 500);
+  //  });
+  //},
+
   getShots: function(query: string, onReload: boolean) {
-    
+
+
     var cachedResultsForQuery = resultsCache.dataForQuery[query];
     if (cachedResultsForQuery) {
       if (!LOADING[query]) {
 
         if(onReload) {
-          // TODO 目前跳转回已经选择过得分类，不显示loading图标，
-          // setTimeout(function() {
-          //   console.log('setTimeout!');
-          // }, 5000);
-          this.setState({
-            dataSource: this.getDataSource(cachedResultsForQuery),
-            isReloading: false
+          // 下面是一个不错的解决方案，使其可以等待并显示loading图标.
+          common.waitReload().then(() => {
+            this.setState({
+              dataSource: this.getDataSource(cachedResultsForQuery),
+              isReloading: false
+            });
           });
+
         } else {
           this.setState({
             dataSource: this.getDataSource(cachedResultsForQuery),
             isLoading: false
           });
         }
-        
+
       } else {
         this.setState({isLoading: true});
       }
@@ -608,57 +545,58 @@ var ShotList = React.createClass({
 
     LOADING[query] = true;
     resultsCache.dataForQuery[query] = null;
-    
-     if(onReload) {
-        this.setState({
-          queryNumber: this.state.queryNumber + 1,
-          isLoadingTail: false,   
-        });
-      } else {
-        this.setState({
-          isLoading: true,
-          queryNumber: this.state.queryNumber + 1,
-          isLoadingTail: false,
-        });
-      }
-        
-    
-    fetch(api.getShotsByType(query, 1, this.state.page_size, this.state.sort_type))
-      .then((response) => response.json())
-      .catch((error) => {
-        LOADING[query] = false;
-        resultsCache.dataForQuery[query] = undefined;
-        if(onReload) {
-          this.setState({ 
-            isReloading: false,
-            dataSource: this.getDataSource([]),
-          });  
-        } else {
-          this.setState({
-            isLoading: false,
-            dataSource: this.getDataSource([]),
-          });  
-        }
-      })
-      .then((responseData) => {
-        LOADING[query] = false;
-        resultsCache.dataForQuery[query] = responseData;
-        resultsCache.nextPageNumberForQuery[query] = 2;
 
-              
-        if(onReload) {
-          this.setState({
-            isReloading: false,
-            dataSource: this.getDataSource(responseData),
-          });  
-        } else {
-          this.setState({
-            isLoading: false,
-            dataSource: this.getDataSource(responseData),
-          });  
-        }
-      })
-      .done();
+    if(onReload) {
+      this.setState({
+        queryNumber: this.state.queryNumber + 1,
+        isLoadingTail: false,
+      });
+    } else {
+      this.setState({
+        isLoading: true,
+        queryNumber: this.state.queryNumber + 1,
+        isLoadingTail: false,
+      });
+    }
+
+
+    fetch(api.getShotsByType(query, 1, this.state.page_size, this.state.sort_type))
+        .then((response) => response.json())
+        .catch((error) => {
+          LOADING[query] = false;
+          resultsCache.dataForQuery[query] = undefined;
+          if(onReload) {
+            this.setState({
+              isReloading: false,
+              dataSource: this.getDataSource([]),
+            });
+          } else {
+            this.setState({
+              isLoading: false,
+              dataSource: this.getDataSource([]),
+            });
+          }
+        })
+        .then((responseData) => {
+          LOADING[query] = false;
+          resultsCache.dataForQuery[query] = responseData;
+          resultsCache.nextPageNumberForQuery[query] = 2;
+
+
+          if(onReload) {
+            this.setState({
+              isReloading: false,
+              dataSource: this.getDataSource(responseData),
+            });
+          } else {
+            this.setState({
+              isLoading: false,
+              dataSource: this.getDataSource(responseData),
+            });
+          }
+        })
+        .done();
+
   },
 
   hasMore: function(): boolean {

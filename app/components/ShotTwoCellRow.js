@@ -47,17 +47,14 @@ var ShotTwoCellRow = React.createClass({
     if(nextProps.shot['isGif'] != undefined && nextProps.shot['isGif']) {
         // console.log('will update this url of gif');  
       //     var image = getImage.shotHidpiImage(this.props.shot);
-      // if(isGif) {
-        var timeInMs = Date.now();
-        var new_uri = this.state.image_uri;
-        new_uri['uri'] = new_uri['uri'] + '?t=' + timeInMs;
-        // new_uri['uri'] = 'https://avatars0.githubusercontent.com/u/1822459';
+
+        var ret = getImage.randomFileName(this.state.image_uri['uri']);
+
         this.setState({
-          image_uri: new_uri,
-          key: this.state.key + '%' + timeInMs
+          image_uri: {uri: ret['image_url']},
+          key: this.state.key + '%' + ret['timeInMs']
         });
-        console.log(new_uri['uri']);
-      // }
+        console.log(ret['image_url']);
     } else if(nextProps.shot != this.props.shot) {
       this.setState({
           image_uri: getImage.shotNormalImage(nextProps.shot),

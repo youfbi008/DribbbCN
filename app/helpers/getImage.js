@@ -58,6 +58,16 @@ module.exports = {
     // }
     return {uri};
   },
+  randomFileName: function(image_url: string): {image_url: ?string, timeInMs: ?integer} {
+
+    var timeInMs = Date.now();
+    if(image_url.indexOf('?t=') > 0) {
+      image_url = image_url.substring(0, image_url.indexOf('?t='));
+    }
+    image_url = image_url + '?t=' + timeInMs;
+
+    return {image_url, timeInMs};
+  },
   checkGif: function(shot: Object) {
 
     var uri = shot.images.normal.toLowerCase();
